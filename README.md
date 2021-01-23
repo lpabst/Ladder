@@ -3,8 +3,7 @@
 
 ## TODO
 - add gravity for entities to fall
-- add boundaries to the map edges
-- make enemies spawn from a location and move towards the end of the map
+- make enemies spawn from a location and move around, then eventually disappear off the map at the bottom
 - add obstacle collision
     - add ground that the player doesn't fall through
     - add spikes that kill the player

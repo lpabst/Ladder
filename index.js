@@ -10,7 +10,9 @@ const game = {
       animationFrame: 0,
       player: null,
       enemies: [],
-      entities: [],
+      walls: [],
+      ladders: [],
+      food: [],
       eventListeners: [],
       keys: { down: {} },
     };
@@ -43,17 +45,21 @@ const game = {
     createEventListner(window, "keyup", (e) => game.handleKeyup(e, data));
   },
 
+  // create entities & add to data oject
   initEntities(data) {
-    // create entities & add to data oject
-    const player = new Player(100, 400);
-    const ladder = new Ladder(200, 330);
-    const enemy = new Enemy(400, 400);
-    const floor = new Wall(0, data.canvas.h - 5, data.canvas.w, 5);
+    const player = new Player(400, 260);
     data.player = player;
-    data.entities.push(player);
-    data.entities.push(ladder);
-    data.entities.push(enemy);
-    data.entities.push(floor);
+
+    const ladder = new Ladder(200, 330);
+    data.ladders.push(ladder);
+
+    const enemy = new Enemy(500, 400);
+    data.enemies.push(enemy);
+
+    const floor = new Wall(0, data.canvas.h, data.canvas.w, 1);
+    const floor2 = new Wall(200, 600, 400, 3);
+    data.walls.push(floor);
+    data.walls.push(floor2);
   },
 
   /***************** END INITIALIZATION ******************/
@@ -105,13 +111,18 @@ const game = {
   update: function (data) {
     // check collisions
 
-    // tell each entity to update itself
-    data.entities.forEach((entity) => entity.update(data));
+    // tell entities that move to move themselves
+    data.player.update(data);
+    data.enemies.forEach((enemy) => enemy.update(data));
   },
 
   render: function (data) {
     data.canvas.clear();
-    data.entities.forEach((entity) => entity.render(data));
+    data.player.render(data);
+    data.enemies.forEach((enemy) => enemy.render(data));
+    data.walls.forEach((wall) => wall.render(data));
+    data.ladders.forEach((ladder) => ladder.render(data));
+    data.food.forEach((food) => food.render(data));
   },
 
   /***************** END GAME LOOP ******************/
