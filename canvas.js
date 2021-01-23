@@ -52,7 +52,7 @@ function Canvas(id = "canvas") {
   };
 
   // top left corner of text goes on x, y
-  this.drawText = function (x, y, text, color = "white", fontSize = "14") {
+  this.drawText = function (x, y, text, color = "white", fontSize = 14) {
     this.context.font = fontSize + "px Arial";
     this.context.fillStyle = color;
     this.context.fillText(text, x, y + fontSize * 0.8);
