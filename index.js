@@ -46,8 +46,14 @@ const game = {
   initEntities(data) {
     // create entities & add to data oject
     const player = new Player(100, 400);
+    const ladder = new Ladder(200, 330);
+    const enemy = new Enemy(400, 400);
+    const floor = new Wall(0, data.canvas.h - 5, data.canvas.w, 5);
     data.player = player;
     data.entities.push(player);
+    data.entities.push(ladder);
+    data.entities.push(enemy);
+    data.entities.push(floor);
   },
 
   /***************** END INITIALIZATION ******************/
@@ -99,65 +105,13 @@ const game = {
   update: function (data) {
     // check collisions
 
-    // update player location based on which keys are down
-    var leftArrowDown = data.keys.down[37];
-    var rightArrowDown = data.keys.down[39];
-    var upArrowDown = data.keys.down[38];
-    var downArrowDown = data.keys.down[40];
-
-    if (leftArrowDown) {
-      data.player.x -= data.player.speed;
-    }
-    if (rightArrowDown) {
-      data.player.x += data.player.speed;
-    }
-    if (upArrowDown) {
-      data.player.y -= data.player.speed;
-    }
-    if (downArrowDown) {
-      data.player.y += data.player.speed;
-    }
+    // tell each entity to update itself
+    data.entities.forEach((entity) => entity.update(data));
   },
 
   render: function (data) {
     data.canvas.clear();
-    data.entities.forEach((entity) => {
-      switch (entity.drawType) {
-        case "line":
-          data.canvas.drawLine(
-            entity.x,
-            entity.y,
-            entity.toX,
-            entity.toY,
-            entity.color
-          );
-        case "circle":
-          data.canvas.drawCircle(
-            entity.x,
-            entity.y,
-            entity.radius,
-            entity.color,
-            entity.fill
-          );
-        case "rect":
-          data.canvas.drawRect(
-            entity.x,
-            entity.y,
-            entity.width,
-            entity.height,
-            entity.color,
-            entity.fill
-          );
-        case "text":
-          data.canvas.drawText(
-            entity.x,
-            entity.y,
-            entity.text,
-            entity.color,
-            entity.fontSize
-          );
-      }
-    });
+    data.entities.forEach((entity) => entity.render(data));
   },
 
   /***************** END GAME LOOP ******************/

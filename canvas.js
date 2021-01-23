@@ -2,6 +2,8 @@ function Canvas(id = "canvas") {
   this.id = id;
   this.canvas = document.getElementById(id);
   this.context = this.canvas.getContext("2d");
+  this.w = this.canvas.width;
+  this.h = this.canvas.height;
 
   // draws black over the entire canvas
   this.clear = function () {
@@ -9,9 +11,9 @@ function Canvas(id = "canvas") {
   };
 
   // top left corner of line goes on x, y
-  this.drawLine = function (x, y, toX, toY, color) {
-    this.context.beginPath();
+  this.drawLine = function (x, y, toX, toY, color = "white") {
     this.context.strokeStyle = color;
+    this.context.beginPath();
     this.context.moveTo(x, y);
     this.context.lineTo(toX, toY);
     this.context.stroke();
