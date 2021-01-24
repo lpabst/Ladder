@@ -1,5 +1,5 @@
-var gravityAcceleration = 0.4;
-var maxGravitySpeed = 2;
+var gravityAcceleration = 0.3;
+var maxGravitySpeed = 3;
 let unhandledCollision = null;
 
 // check if entities are touching in any way
@@ -40,14 +40,17 @@ function Player(x, y) {
     var leftArrowDown = data.keys.down[37];
     var rightArrowDown = data.keys.down[39];
     var upArrowDown = data.keys.down[38];
+    var downArrowDown = data.keys.down[40];
     var newX = this.x;
     var newY = this.y;
 
     // update player x location based on which keys are down
-    if (leftArrowDown && !rightArrowDown) {
+    if (leftArrowDown) {
+      data.keys.down[39] = false;
       newX = this.x - this.speed;
     }
-    if (rightArrowDown && !leftArrowDown) {
+    if (rightArrowDown) {
+      data.keys.down[37] = false;
       newX = this.x + this.speed;
     }
 
@@ -55,18 +58,28 @@ function Player(x, y) {
     var isToucingLadder = data.ladders.some((ladder) =>
       isCollision(this, ladder)
     );
-    if (isToucingLadder && upArrowDown) newY -= this.speed;
+
+    // if we are touching a ladder, kill y velocity and listen to up/down arrow commands
+    if (isToucingLadder) {
+      this.yVel = 0;
+      if (upArrowDown) {
+        newY -= this.speed;
+      }
+      if (downArrowDown) {
+        newY += this.speed;
+      }
+    }
 
     // if we aren't touching a ladder we are affected by gravity and jumps
     if (!isToucingLadder) {
       // if you are falling downward, you cannot jump
       if (this.yVel > 0) {
-        console.log(this.yVel)
         this.availableJumps = 0;
       }
-      
+
       // gravity accelerates us up to a max speed
       if (this.yVel < maxGravitySpeed) {
+        if (!this.yVel) this.yVel = 1;
         this.yVel += gravityAcceleration;
       }
 
@@ -75,7 +88,6 @@ function Player(x, y) {
         data.keys.down[32] = false;
         this.availableJumps--;
         this.yVel = this.jumpVel;
-        console.log("jumps: ", this.availableJumps);
       }
     }
 
@@ -91,10 +103,9 @@ function Player(x, y) {
       if (newPositionCollidesWithWall) {
         // if you collide with a wall, you get your 2 jumps back
         if (this.availableJumps < 2) {
-          console.log('reset jumps to 2')
           this.availableJumps = 2;
         }
-        
+
         var wallTop = wall.y;
         var wallBottom = wall.y + wall.h;
         var wallLeft = wall.x;
@@ -152,6 +163,11 @@ function Player(x, y) {
   // called by the game.render method
   this.render = function (data) {
     data.canvas.drawTextEntity(this.x, this.y, this.text, this.color);
+
+    var debugBoundary = false;
+    if (debugBoundary) {
+      data.canvas.drawRect(this.x, this.y, this.w, this.h, "blue");
+    }
   };
 }
 
@@ -186,14 +202,18 @@ function Enemy(x, y) {
 function Ladder(x, y) {
   this.x = x;
   this.y = y;
-  this.w = 20;
+  this.w = 16;
   this.h = 80;
+  this.color = "white";
   this.numRungs = 4;
   this.rungSpacing = this.h / (this.numRungs + 1);
 
   this.render = function (data) {
-    this.color = "green";
-
+    this.left = this.x;
+    this.right = this.x + this.w;
+    this.top = this.y;
+    this.bottom = this.y + this.h;
+    
     // draw sides
     data.canvas.drawLine(
       this.left,

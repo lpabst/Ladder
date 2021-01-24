@@ -11,10 +11,11 @@
     - add little foods that you can eat that give you points
     - add little foods that you can eat that give you an extra life
     - add a destination that finishes the level
-- make it so player can move upward on ladders, and space bar to jump
+- make it so player can move upward on ladders
 - add how many lives the player has
 - add multiple levels for the player to go through
 - add a high score table 
 - earning a high score allows the player to enter a name into the high score table
 - host the game with simple backend for high scores on heroku or something. 
     - add some logic to check for cheating!
+- add instructions for players to see to know how to play

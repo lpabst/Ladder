@@ -50,17 +50,18 @@ const game = {
     const player = new Player(400, 260);
     data.player = player;
 
-    const ladder = new Ladder(200, 330);
+    const ladder = new Ladder(200, 430);
     data.ladders.push(ladder);
 
     const enemy = new Enemy(500, 400);
     data.enemies.push(enemy);
 
     const floor = new Wall(0, data.canvas.height, data.canvas.width, 10);
-    // const floor2 = new Wall(200, 600, 400, 3);
-    const floor3 = new Wall(100, 790, 400, 3);
-    const floor4 = new Wall(580, 770, 3, 30);
+    const floor2 = new Wall(200, 600, 400, 3);
+    const floor3 = new Wall(100, 750, 400, 3);
+    const floor4 = new Wall(580, 720, 3, 30);
     data.walls.push(floor);
+    data.walls.push(floor2);
     data.walls.push(floor3);
     data.walls.push(floor4);
   },
@@ -72,8 +73,13 @@ const game = {
   handleKeydown: function (e, data) {
     // get key code and prevent default action for that key
     const key = e.which || e.keyCode || 0;
-    if (key === 32 || (key >= 37 && key <= 40)) {
+    if (key === 27 || key === 32 || (key >= 37 && key <= 40)) {
       e.preventDefault();
+    }
+
+    // esc key pauses game
+    if (key === 27) {
+      game.pauseGame(data);
     }
 
     // keep track of which keys are down
@@ -122,13 +128,6 @@ const game = {
     data.walls.forEach((wall) => wall.render(data));
     data.ladders.forEach((ladder) => ladder.render(data));
     data.food.forEach((food) => food.render(data));
-    data.canvas.drawRect(
-      data.player.x,
-      data.player.y,
-      data.player.w,
-      data.player.h,
-      "blue"
-    );
   },
 
   /***************** END GAME LOOP ******************/
