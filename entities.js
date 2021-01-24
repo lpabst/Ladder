@@ -16,9 +16,11 @@ function isCollision(entity1, entity2) {
   var entity2Bottom = entity2.y + entity2.h;
 
   var sameVerticalSpace =
-    entity1Left < entity2Right && entity1Right > entity2Left;
+    (entity1Left < entity2Right && entity1Right > entity2Left) ||
+    (entity2Left < entity1Right && entity2Right > entity1Left);
   var sameHorizontalSpace =
-    entity1Top < entity2Bottom && entity1Bottom > entity2Top;
+    (entity1Top < entity2Bottom && entity1Bottom > entity2Top) ||
+    (entity2Top < entity1Bottom && entity2Bottom > entity1Top);
 
   if (sameVerticalSpace && sameHorizontalSpace) return true;
   else return false;
@@ -65,11 +67,11 @@ function LevelCompletePortal(x, y) {
 }
 
 function Food(x, y) {
-  setupTextEntity(this, x, y, 8, 12, "+", "green");
+  setupTextEntity(this, x, y, 8, 12, "+", "#0c0");
 }
 
 function PointsFood(x, y) {
-  setupTextEntity(this, x, y, 8, 12, "+", "blue");
+  setupTextEntity(this, x, y, 8, 12, "+", "#2ff");
 }
 
 function Spike(x, y) {
@@ -96,11 +98,11 @@ function Player(x, y) {
     var newY = this.y;
 
     // update player x location based on which keys are down
-    if (leftArrowDown && !rightArrowDown) {
-      newX = this.x - this.speed;
+    if (leftArrowDown) {
+      newX -= this.speed;
     }
-    if (rightArrowDown && !leftArrowDown) {
-      newX = this.x + this.speed;
+    if (rightArrowDown) {
+      newX += this.speed;
     }
 
     // if we are touching a ladder, we can move upward
@@ -117,6 +119,11 @@ function Player(x, y) {
       if (downArrowDown) {
         newY += this.speed;
       }
+
+      // if you're touching a ladder, you get your 2 jumps back
+      if (this.availableJumps < 2) {
+        this.availableJumps = 2;
+      }
     }
 
     // if we aren't touching a ladder we are affected by gravity and jumps
@@ -130,13 +137,13 @@ function Player(x, y) {
       if (this.yVel < maxGravitySpeed) {
         this.yVel += gravityAcceleration;
       }
+    }
 
-      // make player jump if space bar is pressed
-      if (spacebarDown && this.availableJumps > 0) {
-        data.keys.down[32] = false;
-        this.availableJumps--;
-        this.yVel = this.jumpVel;
-      }
+    // make player jump if space bar is pressed
+    if (spacebarDown && this.availableJumps > 0) {
+      data.keys.down[32] = false;
+      this.availableJumps--;
+      this.yVel = this.jumpVel;
     }
 
     newY += this.yVel;
@@ -196,6 +203,32 @@ function Player(x, y) {
         ) {
           newX = this.x;
         }
+
+        // if one of our sides is just barely inside a wall, move us out
+        // we have to interact with vertical walls and horizontal walls differently for a good UX, otherwise the player slips off the top of vertical walls too noticeable
+        var bufferAmount = 2;
+        var verticalWall = wall.h > wall.w;
+        var horizontalWall = wall.w >= wall.h;
+        if (
+          newLeftIsInWall &&
+          horizontalWall &&
+          wallRight - newX <= bufferAmount
+        )
+          newX = wallRight;
+        if (
+          newRightIsInWall &&
+          horizontalWall &&
+          newX - wallLeft <= bufferAmount
+        )
+          newX = wallLeft - this.w;
+        if (newTopIsInWall && verticalWall && wallBottom - newY <= bufferAmount)
+          newY = wallBottom;
+        if (
+          newBottomIsInWall &&
+          verticalWall &&
+          newBottom - wallTop <= bufferAmount
+        )
+          newY = wallTop - this.h;
       }
     });
 
@@ -307,7 +340,7 @@ function Enemy(x, y, walkingLeft) {
       data.enemies.splice(index, 1);
       data.points++;
     }
-  };;
+  };
 
   this.render = function (data) {
     data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 10);

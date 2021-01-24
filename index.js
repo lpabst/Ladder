@@ -6,9 +6,10 @@ var levels = {
     enemyPortal: { x: 600, y: 300, spawnMovingLeft: true },
     levelCompletePortal: { x: 600, y: 580 },
     food: [{ x: 400, y: 560 }],
-    pointsFood: [{x: 500, y: 660}],
-    ladders: [{ x: 200, y: 430 }],
+    pointsFood: [{ x: 500, y: 660 }],
+    ladders: [{ x: 400, y: 450 }],
     walls: [
+      { x: 520, y: 660, w: 30, h: 4 },
       { x: 480, y: 320, w: 300, h: 4 },
       { x: 350, y: 600, w: 400, h: 4 },
       { x: 200, y: 680, w: 400, h: 4 },
@@ -27,7 +28,7 @@ var levels = {
     enemyPortal: { x: 600, y: 300, spawnMovingLeft: true },
     levelCompletePortal: { x: 600, y: 600 },
     food: [{ x: 200, y: 200 }],
-    pointsFood: [{x: 500, y: 700}],
+    pointsFood: [{ x: 500, y: 700 }],
     ladders: [{ x: 200, y: 430 }],
     walls: [
       { x: 480, y: 320, w: 300, h: 4 },
@@ -164,7 +165,7 @@ const game = {
       data.food.push(new Food(food.x, food.y));
     });
     level.pointsFood.forEach((pointsFood) => {
-      data.pointsFood.push(new Food(pointsFood.x, pointsFood.y));
+      data.pointsFood.push(new PointsFood(pointsFood.x, pointsFood.y));
     });
     level.ladders.forEach((ladder) => {
       data.ladders.push(new Ladder(ladder.x, ladder.y));
