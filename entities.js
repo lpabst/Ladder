@@ -1,6 +1,8 @@
 var gravityAcceleration = 0.3;
 var maxGravitySpeed = 3;
-let unhandledCollision = null;
+var unhandledCollision = null;
+
+var debugBoundaries = false;
 
 // check if entities are touching in any way
 function isCollision(entity1, entity2) {
@@ -23,16 +25,18 @@ function isCollision(entity1, entity2) {
 }
 
 function Player(x, y) {
+  this.id = randomString(64);
   this.x = x;
   this.y = y;
-  this.w = 11;
-  this.h = 18;
+  this.w = 8;
+  this.h = 17;
   this.speed = 2;
   this.text = "p";
   this.color = "gray";
   this.yVel = 0;
   this.availableJumps = 2;
-  this.jumpVel = -7;
+  this.jumpVel = -5;
+  this.lives = 2;
 
   // called by the game.update method
   this.update = function (data) {
@@ -72,14 +76,13 @@ function Player(x, y) {
 
     // if we aren't touching a ladder we are affected by gravity and jumps
     if (!isToucingLadder) {
-      // if you are falling downward, you cannot jump
-      if (this.yVel > 0) {
+      // if you are falling downward, you cannot jump (although we'll allow a slight buffer)
+      if (this.yVel > gravityAcceleration * 2) {
         this.availableJumps = 0;
       }
 
       // gravity accelerates us up to a max speed
       if (this.yVel < maxGravitySpeed) {
-        if (!this.yVel) this.yVel = 1;
         this.yVel += gravityAcceleration;
       }
 
@@ -93,7 +96,7 @@ function Player(x, y) {
 
     newY += this.yVel;
 
-    // if we're now touching a wall, make sure we don't move through it at all
+    // if our new position is touching a wall, make sure we don't move through it at all
     data.walls.forEach((wall) => {
       var newPositionCollidesWithWall = isCollision(
         { x: newX, y: newY, w: this.w, h: this.h },
@@ -155,51 +158,134 @@ function Player(x, y) {
     if (newX < 0) newX = 0;
     if (newY < 0) newY = 0;
     if (newX > data.canvas.w - 12) newX = data.canvas.w - 12;
-    if (newY > data.canvas.h - this.h) newY = data.canvas.h - this.h;
     this.x = newX;
     this.y = newY;
+
+    // if you fall off the bottom, you die
+    if (newY > data.canvas.h - this.h) {
+      this.lives -= 1;
+      data.playerJustDied = true;
+    }
   };
 
   // called by the game.render method
   this.render = function (data) {
-    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color);
+    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 12);
 
-    var debugBoundary = false;
-    if (debugBoundary) {
+    if (debugBoundaries) {
       data.canvas.drawRect(this.x, this.y, this.w, this.h, "blue");
     }
   };
 }
 
-function Enemy(x, y) {
+function Enemy(x, y, walkingLeft) {
+  this.id = randomString(64);
   this.x = x;
   this.y = y;
-  this.w = 11;
-  this.h = 18;
-  this.speed = 2;
+  this.w = 8;
+  this.h = 10;
+  this.speed = 1.8;
   this.text = "e";
   this.color = "gray";
-  this.direction = "left";
+  this.walkingLeft = walkingLeft;
   this.yVel = 0;
 
-  this.update = function (data) {
+  // if on top of a wall, move in a direction. Otherwise, fall with gravity
+  // eventually disappears off the map
+  this.update = function (data, index) {
+    var newX = this.x;
+    var newY = this.y;
+
+    // move enemy in the direction they are headed
+    if (this.walkingLeft) newX -= this.speed;
+    else newX += this.speed;
+
+    // gravity accelerates us up to a max speed
     if (this.yVel < maxGravitySpeed) {
       this.yVel += gravityAcceleration;
     }
-    this.y += this.yVel;
-    if (this.direction === "left") this.x -= this.speed;
-    else this.x += this.speed;
-    // if on a wall, move in a direction. Otherwise, fall with gravity
-    // Move the same direction until you hit a wall, then reverse direction
-    // eventually disappears off the map
-  };
+
+    newY += this.yVel;
+
+    // if enemy's new position is touching a wall, reverse direction
+    data.walls.forEach((wall) => {
+      var newPositionCollidesWithWall = isCollision(
+        { x: newX, y: newY, w: this.w, h: this.h },
+        wall
+      );
+
+      if (newPositionCollidesWithWall) {
+        var wallTop = wall.y;
+        var wallBottom = wall.y + wall.h;
+        var wallLeft = wall.x;
+        var wallRight = wall.x + wall.w;
+
+        // if our new bottom is in the wall, cancel any vertical movement
+        var bottom = this.y + this.h;
+        var newBottom = newY + this.h;
+        var right = this.x + this.w;
+        var newRight = newX + this.w;
+
+        // see which aspects of player are colliding with wall
+        var topIsInWall = this.y > wallTop && this.y < wallBottom;
+        var newTopIsInWall = newY > wallTop && newY < wallBottom;
+        var bottomIsInWall = bottom > wallTop && bottom < wallBottom;
+        var newBottomIsInWall = newBottom > wallTop && newBottom < wallBottom;
+        var leftIsInWall = this.x > wallLeft && this.x < wallRight;
+        var newLeftIsInWall = newX > wallLeft && newX < wallRight;
+        var rightIsInWall = right > wallLeft && right < wallRight;
+        var newRightIsInWall = newRight > wallLeft && newRight < wallRight;
+        var wallIsInNewPlayerVertically =
+          wallTop >= newY && wallBottom <= newBottom;
+        var wallIsInNewPlayerHorizontally =
+          wallLeft >= newX && wallRight <= newRight;
+
+        // if new top/bottom is in wall, and current left/right is in wall, cancel y movement
+        if (
+          (newTopIsInWall || newBottomIsInWall) &&
+          (leftIsInWall || rightIsInWall || wallIsInNewPlayerHorizontally)
+        ) {
+          newY = this.y;
+          // reset y velocity since we aren't going anywhere in the Y axis
+          this.yVel = 0;
+        }
+
+        // if new left/right is in wall && current top/bottom is in wall, reverse direction
+        if (
+          (newLeftIsInWall || newRightIsInWall) &&
+          (topIsInWall || bottomIsInWall || wallIsInNewPlayerVertically)
+        ) {
+          this.walkingLeft = !this.walkingLeft;
+        }
+      }
+    });
+
+    // if enemy is actively falling, cancel any x movement
+    if (this.yVel > 0) {
+      newX = this.x;
+    }
+
+    // move to new location
+    this.x = newX;
+    this.y = newY;
+
+    // enemies that fall off the bottom of the map die/disappear
+    if (newY > data.canvas.h) {
+      data.enemies.splice(index, 1);
+    }
+  };;
 
   this.render = function (data) {
-    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color);
+    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 10);
+
+    if (debugBoundaries) {
+      data.canvas.drawRect(this.x, this.y, this.w, this.h, "red");
+    }
   };
 }
 
 function Ladder(x, y) {
+  this.id = randomString(64);
   this.x = x;
   this.y = y;
   this.w = 16;
@@ -213,7 +299,7 @@ function Ladder(x, y) {
     this.right = this.x + this.w;
     this.top = this.y;
     this.bottom = this.y + this.h;
-    
+
     // draw sides
     data.canvas.drawLine(
       this.left,
@@ -235,10 +321,15 @@ function Ladder(x, y) {
       var rungY = this.top + this.rungSpacing * i;
       data.canvas.drawLine(this.left, rungY, this.right, rungY, this.color);
     }
+
+    if (debugBoundaries) {
+      data.canvas.drawRect(this.x, this.y, this.w, this.h, "green");
+    }
   };
 }
 
 function Wall(x, y, w, h) {
+  this.id = randomString(64);
   this.x = x;
   this.y = y;
   this.w = w;
@@ -247,5 +338,46 @@ function Wall(x, y, w, h) {
 
   this.render = function (data) {
     data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color, true);
+
+    if (debugBoundaries) {
+      data.canvas.drawRect(this.x, this.y, this.w, this.h, "purple");
+    }
   };
+}
+
+function EnemyPortal(x, y, spawnMovingLeft = true) {
+  this.id = randomString(64);
+  this.x = x;
+  this.y = y;
+  this.w = 12;
+  this.h = 12;
+  this.spawnMovingLeft = spawnMovingLeft;
+  this.text = '@';
+  this.color = 'red';
+  
+  this.render = function(data) {
+    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 13);
+
+    if (debugBoundaries) {
+      data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color);
+    }
+  }
+}
+
+function LevelCompletePortal(x, y) {
+  this.id = randomString(64);
+  this.x = x;
+  this.y = y;
+  this.w = 20;
+  this.h = 20;
+  this.text = '$';
+  this.color = 'green';
+
+  this.render = function(data) {
+    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 13);
+
+    if (debugBoundaries) {
+      data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color);
+    }
+  }
 }

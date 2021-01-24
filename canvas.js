@@ -61,10 +61,10 @@ function Canvas(id = "canvas") {
   };
 
   // we need our entities drawn very specifically so they match up with their bouding rects for collision detection
-  this.drawTextEntity = function (x, y, text, color) {
+  this.drawTextEntity = function (x, y, text, color, entityStartDrawHeight) {
     var fontSize = 20;
     this.context.font = fontSize + "px Arial";
     this.context.fillStyle = color;
-    this.context.fillText(text, x, y + 13);
+    this.context.fillText(text, x - 2, y + entityStartDrawHeight);
   };
 }
