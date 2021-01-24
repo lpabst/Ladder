@@ -56,10 +56,12 @@ const game = {
     const enemy = new Enemy(500, 400);
     data.enemies.push(enemy);
 
-    const floor = new Wall(0, data.canvas.h, data.canvas.w, 1);
-    const floor2 = new Wall(200, 600, 400, 3);
-    data.walls.push(floor);
-    data.walls.push(floor2);
+    // const floor2 = new Wall(200, 600, 400, 3);
+    const floor3 = new Wall(100, 790, 400, 3);
+    const floor4 = new Wall(580, 770, 3, 30);
+    // data.walls.push(floor2);
+    data.walls.push(floor3);
+    data.walls.push(floor4);
   },
 
   /***************** END INITIALIZATION ******************/
@@ -123,6 +125,13 @@ const game = {
     data.walls.forEach((wall) => wall.render(data));
     data.ladders.forEach((ladder) => ladder.render(data));
     data.food.forEach((food) => food.render(data));
+    data.canvas.drawRect(
+      data.player.x,
+      data.player.y,
+      data.player.w,
+      data.player.h,
+      "blue"
+    );
   },
 
   /***************** END GAME LOOP ******************/

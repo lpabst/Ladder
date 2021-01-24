@@ -2,10 +2,10 @@
 - This is a reproduction of an old game called Ladder that I used to play on the K-Pro 2
 
 ## TODO
-- add gravity for entities to fall
-- make enemies spawn from a location and move around, then eventually disappear off the map at the bottom
+- make enemies spawn from a location 
+- enemies should only move left/right if they are on a wall, otherwise they just fall with gravity
+- enemies eventually disappear off the map at the bottom
 - add obstacle collision
-    - add ground that the player doesn't fall through
     - add spikes that kill the player
     - hitting an enemy kills the player
     - add little foods that you can eat that give you points
