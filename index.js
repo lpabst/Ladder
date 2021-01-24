@@ -3,7 +3,10 @@ var levels = {
     // time allowed in milliseconds
     timeAllowed: 100000,
     player: { x: 380, y: 480 },
-    enemyPortal: { x: 600, y: 300, spawnMovingLeft: true },
+    enemyPortals: [
+      { x: 600, y: 300, spawnMovingLeft: true },
+      { x: 200, y: 300, spawnMovingLeft: false },
+    ],
     levelCompletePortal: { x: 600, y: 580 },
     food: [{ x: 400, y: 560 }],
     pointsFood: [{ x: 500, y: 660 }],
@@ -25,7 +28,7 @@ var levels = {
   2: {
     timeAllowed: 100000,
     player: { x: 380, y: 480 },
-    enemyPortal: { x: 600, y: 300, spawnMovingLeft: true },
+    enemyPortals: [{ x: 600, y: 300, spawnMovingLeft: true }],
     levelCompletePortal: { x: 600, y: 600 },
     food: [{ x: 200, y: 200 }],
     pointsFood: [{ x: 500, y: 700 }],
@@ -50,7 +53,7 @@ const game = {
       animationFrame: 0,
       player: null,
       playerJustDied: false,
-      enemyPortal: null,
+      enemyPortals: [],
       levelCompletePortal: null,
       enemies: [],
       walls: [],
@@ -128,7 +131,7 @@ const game = {
     // see if we're missing data in our level setup info
     if (
       !level.player ||
-      !level.enemyPortal ||
+      !level.enemyPortals ||
       !level.levelCompletePortal ||
       !level.walls
     ) {
@@ -140,8 +143,8 @@ const game = {
 
     // reset all entity info fresh
     data.player = null;
-    data.enemyPortal = null;
     data.levelCompletePortal = null;
+    data.enemyPortals = [];
     data.walls = [];
     data.enemies = [];
     data.food = [];
@@ -149,11 +152,11 @@ const game = {
 
     // build entities from level setup info
     data.player = new Player(level.player.x, level.player.y);
-    data.enemyPortal = new EnemyPortal(
-      level.enemyPortal.x,
-      level.enemyPortal.y,
-      level.enemyPortal.spawnMovingLeft
-    );
+    level.enemyPortals.forEach((portal) => {
+      data.enemyPortals.push(
+        new EnemyPortal(portal.x, portal.y, portal.spawnMovingLeft)
+      );
+    });
     data.levelCompletePortal = new LevelCompletePortal(
       level.levelCompletePortal.x,
       level.levelCompletePortal.y
@@ -292,14 +295,9 @@ const game = {
     }
 
     // spawn enemies every so often
-    if (data.enemyPortal && data.animationFrame % 100 === 0) {
-      const enemy = new Enemy(
-        data.enemyPortal.x,
-        data.enemyPortal.y,
-        data.enemyPortal.spawnMovingLeft
-      );
-      data.enemies.push(enemy);
-    }
+    data.enemyPortals.forEach((portal) => {
+      portal.maybeSpawnEnemy(data);
+    });
   },
 
   render: function (data) {
@@ -318,7 +316,7 @@ const game = {
     data.canvas.drawText(0, 40, "Lives: " + data.lives, "white", 18);
     data.canvas.drawText(0, 60, "Points: " + data.points, "white", 18);
     data.player.render(data);
-    data.enemyPortal.render(data);
+    data.enemyPortals.forEach((portal) => portal.render(data));
     data.levelCompletePortal.render(data);
     data.enemies.forEach((enemy) => enemy.render(data));
     data.walls.forEach((wall) => wall.render(data));

@@ -1,9 +1,13 @@
 # Overview
 - This is a reproduction of an old game called Ladder that I used to play on the K-Pro 2
+- https://www.youtube.com/watch?v=9_-LG0KAhZY
 
 ## TODO
+## Enemy Movement
+- When an enemy hits a ladder, it should make a choice to either continue, reverse direction, or go down (if available)
+
 ### Levels
-- build some levels
+- build some levels based on the youtube video above
 
 ### Backend
 - add a high score table 

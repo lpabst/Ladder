@@ -58,8 +58,21 @@ function setupTextEntity(thisContext, x, y, w, h, text, color) {
 }
 
 function EnemyPortal(x, y, spawnMovingLeft = true) {
-  setupTextEntity(this, x, y, 16, 16, "@", "red");
+  setupTextEntity(this, x, y, 8, 13, "v", "gray");
   this.spawnMovingLeft = spawnMovingLeft;
+
+  this.maybeSpawnEnemy = function  (data) {
+    var random = Math.random();
+    // 2 levels of randomness here to determine spawn probability
+    if (random < 0.21 && data.animationFrame % 18 === 0){
+      const enemy = new Enemy(
+        this.x,
+        this.y,
+        this.spawnMovingLeft
+      );
+      data.enemies.push(enemy);
+    }
+  };
 }
 
 function LevelCompletePortal(x, y) {
@@ -67,19 +80,19 @@ function LevelCompletePortal(x, y) {
 }
 
 function Food(x, y) {
-  setupTextEntity(this, x, y, 8, 12, "+", "#0c0");
+  setupTextEntity(this, x, y, 8, 12, "&", "#0c0");
 }
 
 function PointsFood(x, y) {
-  setupTextEntity(this, x, y, 8, 12, "+", "#2ff");
+  setupTextEntity(this, x, y, 8, 12, "&", "#2ff");
 }
 
 function Spike(x, y) {
-  setupTextEntity(this, x, y, 9, 12, "#", "pink");
+  setupTextEntity(this, x, y, 9, 12, "^", "gray");
 }
 
 function Player(x, y) {
-  setupTextEntity(this, x, y, 8, 17, "p", "white");
+  setupTextEntity(this, x, y, 8, 17, "g", "white");
   this.startX = x;
   this.startY = y;
   this.speed = 1.8;
@@ -232,6 +245,18 @@ function Player(x, y) {
       }
     });
 
+    // update player text based on which key is down
+    this.text = "g";
+    if (upArrowDown || downArrowDown) this.text = "p";
+    if (rightArrowDown) {
+      if (this.yVel > 0) this.text = "b";
+      else this.text = "p";
+    }
+    if (leftArrowDown) {
+      if (this.yVel > 0) this.text = "d";
+      else this.text = "q";
+    }
+
     // map edges are boundaries
     if (newX < 0) newX = 0;
     if (newY < 0) newY = 0;
@@ -251,7 +276,7 @@ function Player(x, y) {
 }
 
 function Enemy(x, y, walkingLeft) {
-  setupTextEntity(this, x, y, 8, 10, "e", "gray");
+  setupTextEntity(this, x, y, 8, 10, "o", "gray");
   this.speed = 1.6;
   this.walkingLeft = walkingLeft;
   this.yVel = 0;
