@@ -1,4 +1,5 @@
-var gravity = 2;
+var gravityAcceleration = 0.4;
+var maxGravitySpeed = 2;
 let unhandledCollision = null;
 
 // check if entities are touching in any way
@@ -24,22 +25,25 @@ function isCollision(entity1, entity2) {
 function Player(x, y) {
   this.x = x;
   this.y = y;
-  this.fontSize = 20;
-  this.w = this.fontSize / 2;
-  this.h = this.fontSize;
+  this.w = 11;
+  this.h = 18;
   this.speed = 2;
   this.text = "p";
   this.color = "gray";
+  this.yVel = 0;
+  this.availableJumps = 2;
+  this.jumpVel = -7;
 
   // called by the game.update method
   this.update = function (data) {
+    var spacebarDown = data.keys.down[32];
     var leftArrowDown = data.keys.down[37];
     var rightArrowDown = data.keys.down[39];
     var upArrowDown = data.keys.down[38];
     var newX = this.x;
     var newY = this.y;
 
-    // update player location based on which keys are down
+    // update player x location based on which keys are down
     if (leftArrowDown && !rightArrowDown) {
       newX = this.x - this.speed;
     }
@@ -47,25 +51,50 @@ function Player(x, y) {
       newX = this.x + this.speed;
     }
 
+    // if we are touching a ladder, we can move upward
     var isToucingLadder = data.ladders.some((ladder) =>
       isCollision(this, ladder)
     );
+    if (isToucingLadder && upArrowDown) newY -= this.speed;
 
-    // gravity makes us fall if we aren't touching a ladder
-    if (!isToucingLadder) newY += gravity;
+    // if we aren't touching a ladder we are affected by gravity and jumps
+    if (!isToucingLadder) {
+      // if you are falling downward, you cannot jump
+      if (this.yVel > 0) {
+        console.log(this.yVel)
+        this.availableJumps = 0;
+      }
+      
+      // gravity accelerates us up to a max speed
+      if (this.yVel < maxGravitySpeed) {
+        this.yVel += gravityAcceleration;
+      }
 
-    // if we are touching a ladder, we can move upward
-    // if (isToucingLadder && upArrowDown) newY -= this.speed;
-    if (upArrowDown) newY -= this.speed + 2;
+      // make player jump if space bar is pressed
+      if (spacebarDown && this.availableJumps > 0) {
+        data.keys.down[32] = false;
+        this.availableJumps--;
+        this.yVel = this.jumpVel;
+        console.log("jumps: ", this.availableJumps);
+      }
+    }
+
+    newY += this.yVel;
 
     // if we're now touching a wall, make sure we don't move through it at all
     data.walls.forEach((wall) => {
-      var wallCollision = isCollision(
+      var newPositionCollidesWithWall = isCollision(
         { x: newX, y: newY, w: this.w, h: this.h },
         wall
       );
 
-      if (wallCollision) {
+      if (newPositionCollidesWithWall) {
+        // if you collide with a wall, you get your 2 jumps back
+        if (this.availableJumps < 2) {
+          console.log('reset jumps to 2')
+          this.availableJumps = 2;
+        }
+        
         var wallTop = wall.y;
         var wallBottom = wall.y + wall.h;
         var wallLeft = wall.x;
@@ -97,6 +126,8 @@ function Player(x, y) {
           (leftIsInWall || rightIsInWall || wallIsInNewPlayerHorizontally)
         ) {
           newY = this.y;
+          // reset y velocity since we aren't going anywhere in the Y axis
+          this.yVel = 0;
         }
 
         // if new left/right is in wall && current top/bottom is in wall, cancel x movement
@@ -120,32 +151,35 @@ function Player(x, y) {
 
   // called by the game.render method
   this.render = function (data) {
-    data.canvas.drawText(this.x, this.y, this.text, this.color, this.fontSize);
+    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color);
   };
 }
 
 function Enemy(x, y) {
   this.x = x;
   this.y = y;
-  this.fontSize = 20;
-  this.w = this.fontSize;
-  this.h = this.fontSize;
+  this.w = 11;
+  this.h = 18;
   this.speed = 2;
   this.text = "e";
   this.color = "gray";
   this.direction = "left";
+  this.yVel = 0;
 
   this.update = function (data) {
-    this.y += gravity;
+    if (this.yVel < maxGravitySpeed) {
+      this.yVel += gravityAcceleration;
+    }
+    this.y += this.yVel;
     if (this.direction === "left") this.x -= this.speed;
     else this.x += this.speed;
     // if on a wall, move in a direction. Otherwise, fall with gravity
     // Move the same direction until you hit a wall, then reverse direction
     // eventually disappears off the map
-  };;
+  };
 
   this.render = function (data) {
-    data.canvas.drawText(this.x, this.y, this.text, this.color, this.fontSize);
+    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color);
   };
 }
 

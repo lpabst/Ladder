@@ -56,10 +56,11 @@ const game = {
     const enemy = new Enemy(500, 400);
     data.enemies.push(enemy);
 
+    const floor = new Wall(0, data.canvas.height, data.canvas.width, 10);
     // const floor2 = new Wall(200, 600, 400, 3);
     const floor3 = new Wall(100, 790, 400, 3);
     const floor4 = new Wall(580, 770, 3, 30);
-    // data.walls.push(floor2);
+    data.walls.push(floor);
     data.walls.push(floor3);
     data.walls.push(floor4);
   },
@@ -73,10 +74,6 @@ const game = {
     const key = e.which || e.keyCode || 0;
     if (key === 32 || (key >= 37 && key <= 40)) {
       e.preventDefault();
-    }
-
-    if (key === 32) {
-      return game.pauseGame(data);
     }
 
     // keep track of which keys are down

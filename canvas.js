@@ -54,9 +54,17 @@ function Canvas(id = "canvas") {
   };
 
   // top left corner of text goes on x, y
-  this.drawText = function (x, y, text, color = "white", fontSize = 14) {
+  this.drawText = function (x, y, text, color = "white", fontSize = 40) {
     this.context.font = fontSize + "px Arial";
     this.context.fillStyle = color;
     this.context.fillText(text, x, y + fontSize * 0.8);
+  };
+
+  // we need our entities drawn very specifically so they match up with their bouding rects for collision detection
+  this.drawTextEntity = function (x, y, text, color) {
+    var fontSize = 20;
+    this.context.font = fontSize + "px Arial";
+    this.context.fillStyle = color;
+    this.context.fillText(text, x, y + 13);
   };
 }
