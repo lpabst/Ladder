@@ -3,15 +3,9 @@
 
 ## TODO
 ### Basics
-- add some kind of points tracking
 - add obstacle collision
-    - add spikes that kill the player
     - add little foods that you can eat that give you points
-    - add little foods that you can eat that give you an extra life
-- add instructions for players to see to know how to play
-
-### Levels
-- add multiple levels for the player to go through
+- add timer to each level
 
 ### Backend
 - add a high score table 

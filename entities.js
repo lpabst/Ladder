@@ -24,19 +24,66 @@ function isCollision(entity1, entity2) {
   else return false;
 }
 
+// sets up the shared items for all text entity types
+function setupTextEntity(thisContext, x, y, w, h, text, color) {
+  thisContext.id = randomString(64);
+  thisContext.x = x;
+  thisContext.y = y;
+  thisContext.w = w;
+  thisContext.h = h;
+  thisContext.text = text;
+  thisContext.color = color;
+
+  thisContext.render = function (data) {
+    data.canvas.drawTextEntity(
+      thisContext.x,
+      thisContext.y,
+      thisContext.text,
+      thisContext.color,
+      13
+    );
+
+    if (debugBoundaries) {
+      data.canvas.drawRect(
+        thisContext.x,
+        thisContext.y,
+        thisContext.w,
+        thisContext.h,
+        thisContext.color
+      );
+    }
+  };
+}
+
+function EnemyPortal(x, y, spawnMovingLeft = true) {
+  setupTextEntity(this, x, y, 16, 16, "@", "red");
+  this.spawnMovingLeft = spawnMovingLeft;
+}
+
+function LevelCompletePortal(x, y) {
+  setupTextEntity(this, x, y, 10, 16, "$", "green");
+}
+
+function Food(x, y) {
+  setupTextEntity(this, x, y, 8, 12, "+", "green");
+}
+
+function PointsFood(x, y) {
+  setupTextEntity(this, x, y, 8, 12, "+", "blue");
+}
+
+function Spike(x, y) {
+  setupTextEntity(this, x, y, 9, 12, "#", "pink");
+}
+
 function Player(x, y) {
-  this.id = randomString(64);
-  this.x = x;
-  this.y = y;
-  this.w = 8;
-  this.h = 17;
-  this.speed = 2;
-  this.text = "p";
-  this.color = "gray";
+  setupTextEntity(this, x, y, 8, 17, "p", "white");
+  this.startX = x;
+  this.startY = y;
+  this.speed = 1.8;
   this.yVel = 0;
   this.availableJumps = 2;
   this.jumpVel = -5;
-  this.lives = 2;
 
   // called by the game.update method
   this.update = function (data) {
@@ -49,22 +96,20 @@ function Player(x, y) {
     var newY = this.y;
 
     // update player x location based on which keys are down
-    if (leftArrowDown) {
-      data.keys.down[39] = false;
+    if (leftArrowDown && !rightArrowDown) {
       newX = this.x - this.speed;
     }
-    if (rightArrowDown) {
-      data.keys.down[37] = false;
+    if (rightArrowDown && !leftArrowDown) {
       newX = this.x + this.speed;
     }
 
     // if we are touching a ladder, we can move upward
-    var isToucingLadder = data.ladders.some((ladder) =>
+    var isTouchingLadder = data.ladders.some((ladder) =>
       isCollision(this, ladder)
     );
 
     // if we are touching a ladder, kill y velocity and listen to up/down arrow commands
-    if (isToucingLadder) {
+    if (isTouchingLadder) {
       this.yVel = 0;
       if (upArrowDown) {
         newY -= this.speed;
@@ -75,7 +120,7 @@ function Player(x, y) {
     }
 
     // if we aren't touching a ladder we are affected by gravity and jumps
-    if (!isToucingLadder) {
+    if (!isTouchingLadder) {
       // if you are falling downward, you cannot jump (although we'll allow a slight buffer)
       if (this.yVel > gravityAcceleration * 2) {
         this.availableJumps = 0;
@@ -160,12 +205,6 @@ function Player(x, y) {
     if (newX > data.canvas.w - 12) newX = data.canvas.w - 12;
     this.x = newX;
     this.y = newY;
-
-    // if you fall off the bottom, you die
-    if (newY > data.canvas.h - this.h) {
-      this.lives -= 1;
-      data.playerJustDied = true;
-    }
   };
 
   // called by the game.render method
@@ -179,14 +218,8 @@ function Player(x, y) {
 }
 
 function Enemy(x, y, walkingLeft) {
-  this.id = randomString(64);
-  this.x = x;
-  this.y = y;
-  this.w = 8;
-  this.h = 10;
-  this.speed = 1.8;
-  this.text = "e";
-  this.color = "gray";
+  setupTextEntity(this, x, y, 8, 10, "e", "gray");
+  this.speed = 1.6;
   this.walkingLeft = walkingLeft;
   this.yVel = 0;
 
@@ -269,9 +302,10 @@ function Enemy(x, y, walkingLeft) {
     this.x = newX;
     this.y = newY;
 
-    // enemies that fall off the bottom of the map die/disappear
+    // enemies that fall off the bottom of the map die/disappear and the player gets a point
     if (newY > data.canvas.h) {
       data.enemies.splice(index, 1);
+      data.points++;
     }
   };;
 
@@ -334,7 +368,7 @@ function Wall(x, y, w, h) {
   this.y = y;
   this.w = w;
   this.h = h;
-  this.color = "white";
+  this.color = "#ccc";
 
   this.render = function (data) {
     data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color, true);
@@ -343,41 +377,4 @@ function Wall(x, y, w, h) {
       data.canvas.drawRect(this.x, this.y, this.w, this.h, "purple");
     }
   };
-}
-
-function EnemyPortal(x, y, spawnMovingLeft = true) {
-  this.id = randomString(64);
-  this.x = x;
-  this.y = y;
-  this.w = 12;
-  this.h = 12;
-  this.spawnMovingLeft = spawnMovingLeft;
-  this.text = '@';
-  this.color = 'red';
-  
-  this.render = function(data) {
-    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 13);
-
-    if (debugBoundaries) {
-      data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color);
-    }
-  }
-}
-
-function LevelCompletePortal(x, y) {
-  this.id = randomString(64);
-  this.x = x;
-  this.y = y;
-  this.w = 20;
-  this.h = 20;
-  this.text = '$';
-  this.color = 'green';
-
-  this.render = function(data) {
-    data.canvas.drawTextEntity(this.x, this.y, this.text, this.color, 13);
-
-    if (debugBoundaries) {
-      data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color);
-    }
-  }
 }
