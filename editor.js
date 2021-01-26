@@ -66,16 +66,6 @@ var editor = {
     data.lastKey = key;
   },
 
-  /*
-       80: "p", // player
-       87: "w", // wall
-       69: "e", // enemy portal
-       67: "c", // level complete portal
-       76: "l", // ladder
-       83: "s", // spike
-       70: "f", // food
-       187: "+", // points food
-  */
   handleMousedown: function (e, data) {
     console.log(data.lastKey);
     if (data.click.currentLocation) {
@@ -85,6 +75,7 @@ var editor = {
     data.click.count++;
 
     switch (data.lastKey) {
+      // p = player
       case 80: {
         const player = new Player(
           data.click.currentLocation.x,
@@ -93,6 +84,7 @@ var editor = {
         data.player = player;
         break;
       }
+      // w = wall
       case 87: {
         if (data.click.count >= 2) {
           data.click.count = 0;
@@ -109,11 +101,11 @@ var editor = {
             dimensions.h
           );
           data.walls.push(wall);
-          break;
         }
+        break;
       }
+      // e = enemy portal
       case 69: {
-        console.log("create enemy portal");
         const enemyPortal = new EnemyPortal(
           data.click.currentLocation.x,
           data.click.currentLocation.y
@@ -121,6 +113,8 @@ var editor = {
         data.enemyPortals.push(enemyPortal);
         break;
       }
+      // c/4 = level complete portal
+      case 52:
       case 67: {
         const portal = new LevelCompletePortal(
           data.click.currentLocation.x,
@@ -129,6 +123,7 @@ var editor = {
         data.levelCompletePortal = portal;
         break;
       }
+      // l = ladder
       case 76: {
         if (data.click.count >= 2) {
           data.click.count = 0;
@@ -141,9 +136,10 @@ var editor = {
           const ladder = new Ladder(dimensions.x, dimensions.y, dimensions.h);
           console.log(dimensions);
           data.ladders.push(ladder);
-          break;
         }
+        break;
       }
+      // s = spike
       case 83: {
         const spike = new Spike(
           data.click.currentLocation.x,
@@ -152,6 +148,7 @@ var editor = {
         data.spikes.push(spike);
         break;
       }
+      // f = food
       case 70: {
         const food = new Food(
           data.click.currentLocation.x,
@@ -160,6 +157,7 @@ var editor = {
         data.food.push(food);
         break;
       }
+      // + = pointsFood
       case 187: {
         const pointsFood = new PointsFood(
           data.click.currentLocation.x,
@@ -293,58 +291,59 @@ var editor = {
 
     const level = document.getElementById("level").value;
     const loadedData = levelData[level];
-    this.buildEntitiesFromData(data, loadedData)
+    this.buildEntitiesFromData(data, loadedData);
   },
 
-  buildEntitiesFromData: function(data, entityData) {
-      console.log('buid entities from data\ndata: ', data, '\nentityData: ', entityData)
-      data.player = null;
-      data.levelCompletePortal = null;
-      data.enemyPortals = []
-      data.enemies = [];
-      data.food = [];
-      data.pointsFood = [];
-      data.spikes = [];
-      data.ladders = []
-      data.walls = []
+  buildEntitiesFromData: function (data, entityData) {
+    console.log(
+      "buid entities from data\ndata: ",
+      data,
+      "\nentityData: ",
+      entityData
+    );
+    data.player = null;
+    data.levelCompletePortal = null;
+    data.enemyPortals = [];
+    data.enemies = [];
+    data.food = [];
+    data.pointsFood = [];
+    data.spikes = [];
+    data.ladders = [];
+    data.walls = [];
     if (entityData.player) {
-        data.player = new Player(entityData.player.x, entityData.player.y);
+      data.player = new Player(entityData.player.x, entityData.player.y);
     }
     if (entityData.levelCompletePortal) {
-        data.levelCompletePortal = new LevelCompletePortal(
-            entityData.levelCompletePortal.x,
-            entityData.levelCompletePortal.y
-        ) 
+      data.levelCompletePortal = new LevelCompletePortal(
+        entityData.levelCompletePortal.x,
+        entityData.levelCompletePortal.y
+      );
     }
     if (entityData.enemyPortals) {
-        entityData.enemyPortals.forEach(p => data.enemyPortals.push(
-            new EnemyPortal(p.x, p.y, p.spawnMovingLeft)
-        ))
+      entityData.enemyPortals.forEach((p) =>
+        data.enemyPortals.push(new EnemyPortal(p.x, p.y, p.spawnMovingLeft))
+      );
     }
     if (entityData.food) {
-        entityData.food.forEach(f => data.food.push(
-            new Food(f.x, f.y)
-        ))
+      entityData.food.forEach((f) => data.food.push(new Food(f.x, f.y)));
     }
     if (entityData.pointsFood) {
-        entityData.pointsFood.forEach(pf => data.pointsFood.push(
-            new PointsFood(pf.x, pf.y)
-        ))
+      entityData.pointsFood.forEach((pf) =>
+        data.pointsFood.push(new PointsFood(pf.x, pf.y))
+      );
     }
     if (entityData.spikes) {
-        entityData.spikes.forEach(s => data.spikes.push(
-            new Spike(s.x, s.y)
-        ))
+      entityData.spikes.forEach((s) => data.spikes.push(new Spike(s.x, s.y)));
     }
     if (entityData.ladders) {
-        entityData.ladders.forEach(l => data.ladders.push(
-            new Ladder(l.x, l.y, l.h)
-        ))
+      entityData.ladders.forEach((l) =>
+        data.ladders.push(new Ladder(l.x, l.y, l.h))
+      );
     }
     if (entityData.walls) {
-        entityData.walls.forEach(w => data.walls.push(
-            new Wall(w.x, w.y, w.w, w.h)
-        ))
+      entityData.walls.forEach((w) =>
+        data.walls.push(new Wall(w.x, w.y, w.w, w.h))
+      );
     }
   },
 
@@ -363,7 +362,7 @@ var editor = {
     console.log("loaded data for key : ", key);
 
     // update data object
-    this.buildEntitiesFromData(data, parsedData)
+    this.buildEntitiesFromData(data, parsedData);
   },
 
   saveDataForKey: function (key, data) {
@@ -371,12 +370,20 @@ var editor = {
     console.log("saved data for key: ", key);
   },
 
-  playThisData: function(e, data) {
-      if (!data.player || !data.levelCompletePortal || !data.enemyPortals || !data.food || !data.pointsFood || !data.walls || !data.ladders) {
-          alert('insufficient data to play');
-          return;
-      }
-      
-      game.init(data);
-  }
+  playThisData: function (e, data) {
+    if (
+      !data.player ||
+      !data.levelCompletePortal ||
+      !data.enemyPortals ||
+      !data.food ||
+      !data.pointsFood ||
+      !data.walls ||
+      !data.ladders
+    ) {
+      alert("insufficient data to play");
+      return;
+    }
+
+    game.init(data);
+  },
 };
