@@ -20,6 +20,8 @@ var editor = {
         count: 0,
         lastLocation: null,
       },
+      additionHistory: [],
+      undoHistory: [],
     };
 
     editor.initCanvas(data);
@@ -75,6 +77,54 @@ var editor = {
     data.click.count++;
 
     switch (data.lastKey) {
+      // z = undo last addition
+      case 90: {
+        if (!data || !data.additionHistory || data.additionHistory.length === 0)
+          return;
+
+        // get the last entityType out of the history array
+        const historyLength = data.additionHistory.length;
+        const entityType = data.additionHistory[historyLength - 1] || "";
+        if (!entityType) return;
+
+        let deletedEntity;
+        if (entityType === "player" || entityType === "levelCompletePortal") {
+          deletedEntity = data[entityType];
+          data[entityType] = null;
+        } else {
+          deletedEntity = data[entityType].splice(
+            data[entityType].length - 1,
+            1
+          )[0];
+        }
+
+        // move the deleted entity into the undoHistory array
+        data.additionHistory.splice(historyLength - 1, 1);
+        data.undoHistory.push(deletedEntity);
+        break;
+      }
+      // y = restores the most recently deleted item
+      // NOTE: if that is the player or levelCompletePortal, and a new one has been placed, this will overwrite the new one
+      case 89: {
+        if (!data || !data.undoHistory || data.undoHistory.length === 0) return;
+        // put the most recently deleted item back
+        const itemToRestore = data.undoHistory.splice(
+          data.undoHistory.length - 1,
+          1
+        )[0];
+        data.additionHistory.push(itemToRestore.type);
+
+        if (
+          itemToRestore.type === "player" ||
+          itemToRestore.type === "levelCompletePortal"
+        ) {
+          data[itemToRestore.type] = itemToRestore;
+        } else {
+          data[itemToRestore.type].push(itemToRestore);
+        }
+
+        break;
+      }
       // p = player
       case 80: {
         const player = new Player(
@@ -82,6 +132,7 @@ var editor = {
           data.click.currentLocation.y
         );
         data.player = player;
+        data.additionHistory.push(player.type);
         break;
       }
       // w = wall
@@ -101,6 +152,7 @@ var editor = {
             dimensions.h
           );
           data.walls.push(wall);
+          data.additionHistory.push(wall.type)
         }
         break;
       }
@@ -111,6 +163,7 @@ var editor = {
           data.click.currentLocation.y
         );
         data.enemyPortals.push(enemyPortal);
+        data.additionHistory.push(enemyPortal.type);
         break;
       }
       // c/4 = level complete portal
@@ -121,6 +174,7 @@ var editor = {
           data.click.currentLocation.y
         );
         data.levelCompletePortal = portal;
+        data.additionHistory.push(portal.type);
         break;
       }
       // l = ladder
@@ -136,6 +190,7 @@ var editor = {
           const ladder = new Ladder(dimensions.x, dimensions.y, dimensions.h);
           console.log(dimensions);
           data.ladders.push(ladder);
+          data.additionHistory.push(ladder.type)
         }
         break;
       }
@@ -146,6 +201,7 @@ var editor = {
           data.click.currentLocation.y
         );
         data.spikes.push(spike);
+        data.additionHistory.push(spike.type);
         break;
       }
       // f = food
@@ -155,6 +211,7 @@ var editor = {
           data.click.currentLocation.y
         );
         data.food.push(food);
+        data.additionHistory.push(food.type);
         break;
       }
       // + = pointsFood
@@ -164,6 +221,7 @@ var editor = {
           data.click.currentLocation.y
         );
         data.pointsFood.push(pointsFood);
+        data.additionHistory.push(pointsFood.type);
         break;
       }
       default: {

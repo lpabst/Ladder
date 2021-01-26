@@ -4,6 +4,7 @@ const game = {
   init: function (editorData = null) {
     // hide editor button
     document.getElementById("editButton").classList.add("hidden");
+    document.getElementById("startButton").classList.add("hidden");
 
     // create data object to be passed around
     const data = {
@@ -274,15 +275,15 @@ const game = {
 
     data.canvas.clear();
     data.canvas.drawText(
-      0,
-      0,
+      20,
+      770,
       "Timer: " + timeRemainingFormatted,
       timerColor,
       18
     );
-    data.canvas.drawText(0, 20, "Level: " + data.gameLevel, "white", 18);
-    data.canvas.drawText(0, 40, "Lives: " + data.lives, "white", 18);
-    data.canvas.drawText(0, 60, "Points: " + data.points, "white", 18);
+    data.canvas.drawText(240, 770, "Level: " + data.gameLevel, "white", 18);
+    data.canvas.drawText(460, 770, "Lives: " + data.lives, "white", 18);
+    data.canvas.drawText(640, 770, "Points: " + data.points, "white", 18);
     data.player.render(data);
     data.enemyPortals.forEach((portal) => portal.render(data));
     data.levelCompletePortal.render(data);
@@ -314,6 +315,7 @@ const game = {
     data.gameRunning = false;
     game.removeEventListeners(data);
     data.canvas.drawText(270, 350, "GAME OVER", "white", 40);
+    document.getElementById("startButton").classList.remove("hidden");
   },
 
   // unbinds all of the event listeners saved in the data.eventListeners list

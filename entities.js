@@ -60,6 +60,7 @@ function setupTextEntity(thisContext, x, y, w, h, text, color) {
 function EnemyPortal(x, y, spawnMovingLeft = true) {
   setupTextEntity(this, x, y, 8, 13, "v", "gray");
   this.spawnMovingLeft = spawnMovingLeft;
+  this.type = "enemyPortals";
 
   this.maybeSpawnEnemy = function  (data) {
     var random = Math.random();
@@ -77,18 +78,22 @@ function EnemyPortal(x, y, spawnMovingLeft = true) {
 
 function LevelCompletePortal(x, y) {
   setupTextEntity(this, x, y, 10, 16, "$", "green");
+  this.type = "levelCompletePortal";
 }
 
 function Food(x, y) {
   setupTextEntity(this, x, y, 8, 12, "&", "#0c0");
+  this.type = "food";
 }
 
 function PointsFood(x, y) {
   setupTextEntity(this, x, y, 8, 12, "&", "#2ff");
+  this.type = "pointsFood";
 }
 
 function Spike(x, y) {
   setupTextEntity(this, x, y, 9, 12, "^", "gray");
+  this.type = "spikes";
 }
 
 function Player(x, y) {
@@ -99,6 +104,7 @@ function Player(x, y) {
   this.yVel = 0;
   this.availableJumps = 2;
   this.jumpVel = -5;
+  this.type = "player";
 
   // called by the game.update method
   this.update = function (data) {
@@ -280,6 +286,7 @@ function Enemy(x, y, walkingLeft) {
   this.speed = 1.6;
   this.walkingLeft = walkingLeft;
   this.yVel = 0;
+  this.type = "enemies";
 
   // if on top of a wall, move in a direction. Otherwise, fall with gravity
   // eventually disappears off the map
@@ -385,6 +392,7 @@ function Ladder(x, y, h) {
   this.color = "white";
   this.numRungs = 4;
   this.rungSpacing = this.h / (this.numRungs + 1);
+  this.type = "ladders";
 
   this.render = function (data) {
     this.left = this.x;
@@ -427,6 +435,7 @@ function Wall(x, y, w, h) {
   this.w = w;
   this.h = h;
   this.color = "#ccc";
+  this.type = "walls";
 
   this.render = function (data) {
     data.canvas.drawRect(this.x, this.y, this.w, this.h, this.color, true);
