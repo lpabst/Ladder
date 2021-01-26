@@ -272,33 +272,39 @@ var editor = {
       levelCompletePortalText = `{ x: ${data.levelCompletePortal.x}, y: ${data.levelCompletePortal.y}}`;
     }
     if (data.enemyPortals) {
-      data.enemyPortals.forEach((portal) => {
-        enemyPortalsText += `\n{ x: ${portal.x}, y: ${portal.y}, spawnMovingLeft: ${portal.spawnMovingLeft} }`;
+      data.enemyPortals.forEach((portal, i) => {
+        if (i !== 0) enemyPortalsText += "\n";
+        enemyPortalsText += `{ x: ${portal.x}, y: ${portal.y}, spawnMovingLeft: ${portal.spawnMovingLeft} },`;
       });
     }
     if (data.food) {
-      data.food.forEach((food) => {
-        foodText += `\n{ x: ${food.x}, y: ${food.y} }`;
+      data.food.forEach((food, i) => {
+        if (i !== 0) foodText += "\n";
+        foodText += `{ x: ${food.x}, y: ${food.y} },`;
       });
     }
     if (data.pointsFood) {
-      data.pointsFood.forEach((pointsFood) => {
-        pointsFoodText += `\n{ x: ${pointsFood.x}, y: ${pointsFood.y} }`;
+      data.pointsFood.forEach((pointsFood, i) => {
+        if (i !== 0) pointsFoodText += "\n";
+        pointsFoodText += `{ x: ${pointsFood.x}, y: ${pointsFood.y} },`;
       });
     }
     if (data.ladders) {
-      data.ladders.forEach((ladder) => {
-        laddersText += `\n{ x: ${ladder.x}, y: ${ladder.y}, h: ${ladder.h} }`;
+      data.ladders.forEach((ladder, i) => {
+        if (i !== 0) laddersText += "\n";
+        laddersText += `{ x: ${ladder.x}, y: ${ladder.y}, h: ${ladder.h} },`;
       });
     }
     if (data.walls) {
-      data.walls.forEach((wall) => {
-        wallsText += `\n{ x: ${wall.x}, y: ${wall.y}, w: ${wall.w}, h: ${wall.h} }`;
+      data.walls.forEach((wall, i) => {
+        if (i !== 0) wallsText += "\n";
+        wallsText += `{ x: ${wall.x}, y: ${wall.y}, w: ${wall.w}, h: ${wall.h} },`;
       });
     }
     if (data.spikes) {
       data.spikes.forEach((spike) => {
-        spikesText += `\n{ x: ${spike.x}, y: ${spike.y} }`;
+        if (i !== 0) spikesText += "\n";
+        spikesText += `{ x: ${spike.x}, y: ${spike.y} },`;
       });
     }
 
