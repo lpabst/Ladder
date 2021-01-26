@@ -1,7 +1,7 @@
 const game = {
   /*********** INITIALIZATION ******************/
 
-  init: function () {
+  init: function (editorData = null) {
     // hide editor button
     document.getElementById("editButton").classList.add("hidden");
 
@@ -33,7 +33,7 @@ const game = {
 
     game.initCanvas(data);
     game.initEventListeners(data);
-    game.initLevel(data);
+    game.initLevel(data, editorData);
 
     game.run(data);
   },
@@ -59,7 +59,7 @@ const game = {
     createEventListener(window, "keyup", (e) => game.handleKeyup(e, data));
   },
 
-  initLevel(data, retry = false) {
+  initLevel(data, editorData, retry = false) {
     var level = levelData[data.gameLevel];
 
     // if we complete all of the levels, start back at level 1
@@ -73,11 +73,11 @@ const game = {
 
       // otherwise, set game level back to 1 and try to init the level again
       data.gameLevel = 1;
-      game.initLevel(data, true);
+      game.initLevel(data, editorData, true);
     }
 
     // build the entities for this level
-    this.initEntitiesForLevel(data);
+    this.initEntitiesForLevel(data, editorData);
 
     // track the start time and how much time is allowed for each level
     data.levelStartTime = new Date().getTime();
@@ -85,7 +85,15 @@ const game = {
     data.levelTimeRemaining = level.timeAllowed;
   },
 
-  initEntitiesForLevel(data) {
+  initEntitiesForLevel(data, editorData) {
+    // if a data object was sent in, use that data instead of building out the data from levelData
+    if (editorData) {
+      for (var key in editorData) {
+        data[key] = editorData[key];
+      }
+      return;
+    }
+
     var level = levelData[data.gameLevel];
 
     // see if we're missing data in our level setup info

@@ -1,6 +1,7 @@
 var editor = {
   init: function () {
-    this.showEditorButtons();
+    // show editor specific elements
+    document.getElementById("editorElements").style = "display: block;";
 
     // this is the data the editor cares about
     const data = {
@@ -25,23 +26,6 @@ var editor = {
     editor.initEventListeners(data);
 
     editor.run(data);
-  },
-
-  showEditorButtons: function () {
-    // show editor specific elements
-    const editorElements = document.getElementsByClassName("editorElement");
-    let updating = true;
-    let index = 0;
-    while (updating) {
-      if (editorElements[index]) {
-        editorElements[index].classList.remove("hidden");
-      } else {
-        updating = false;
-      }
-      // I don't think I'll ever have more than 30 editor specific html elements
-      if (index > 30) updating = false;
-      index++;
-    }
   },
 
   initCanvas: function (data) {
@@ -69,6 +53,9 @@ var editor = {
     document
       .getElementById("restoreButton")
       .addEventListener("click", (e) => editor.restoreLastSave(e, data));
+    document
+      .getElementById("playLevelButton")
+      .addEventListener("click", (e) => editor.playThisData(e, data));
     window.addEventListener("keydown", (e) => editor.handleKeydown(e, data));
   },
 
@@ -306,17 +293,59 @@ var editor = {
 
     const level = document.getElementById("level").value;
     const loadedData = levelData[level];
+    this.buildEntitiesFromData(data, loadedData)
+  },
 
-    // update data object
-    data.player = loadedData.player;
-    data.levelCompletePortal = loadedData.levelCompletePortal;
-    data.enemyPortals = loadedData.enemyPortals;
-    data.enemies = loadedData.enemies;
-    data.food = loadedData.food;
-    data.pointsFood = loadedData.pointsFood;
-    data.spikes = loadedData.spikes;
-    data.ladders = loadedData.ladders;
-    data.walls = loadedData.walls;
+  buildEntitiesFromData: function(data, entityData) {
+      console.log('buid entities from data\ndata: ', data, '\nentityData: ', entityData)
+      data.player = null;
+      data.levelCompletePortal = null;
+      data.enemyPortals = []
+      data.enemies = [];
+      data.food = [];
+      data.pointsFood = [];
+      data.spikes = [];
+      data.ladders = []
+      data.walls = []
+    if (entityData.player) {
+        data.player = new Player(entityData.player.x, entityData.player.y);
+    }
+    if (entityData.levelCompletePortal) {
+        data.levelCompletePortal = new LevelCompletePortal(
+            entityData.levelCompletePortal.x,
+            entityData.levelCompletePortal.y
+        ) 
+    }
+    if (entityData.enemyPortals) {
+        entityData.enemyPortals.forEach(p => data.enemyPortals.push(
+            new EnemyPortal(p.x, p.y, p.spawnMovingLeft)
+        ))
+    }
+    if (entityData.food) {
+        entityData.food.forEach(f => data.food.push(
+            new Food(f.x, f.y)
+        ))
+    }
+    if (entityData.pointsFood) {
+        entityData.pointsFood.forEach(pf => data.pointsFood.push(
+            new PointsFood(pf.x, pf.y)
+        ))
+    }
+    if (entityData.spikes) {
+        entityData.spikes.forEach(s => data.spikes.push(
+            new Spike(s.x, s.y)
+        ))
+    }
+    if (entityData.ladders) {
+        entityData.ladders.forEach(l => data.ladders.push(
+            new Ladder(l.x, l.y, l.h)
+        ))
+    }
+    if (entityData.walls) {
+        entityData.walls.forEach(w => data.walls.push(
+            new Wall(w.x, w.y, w.w, w.h)
+        ))
+    }
   },
 
   restoreLastSave: function (e, data) {
@@ -334,19 +363,20 @@ var editor = {
     console.log("loaded data for key : ", key);
 
     // update data object
-    data.player = parsedData.player;
-    data.levelCompletePortal = parsedData.levelCompletePortal;
-    data.enemyPortals = parsedData.enemyPortals;
-    data.enemies = parsedData.enemies;
-    data.food = parsedData.food;
-    data.pointsFood = parsedData.pointsFood;
-    data.spikes = parsedData.spikes;
-    data.ladders = parsedData.ladders;
-    data.walls = parsedData.walls;
+    this.buildEntitiesFromData(data, parsedData)
   },
 
   saveDataForKey: function (key, data) {
     localStorage.setItem(key, JSON.stringify(data));
     console.log("saved data for key: ", key);
   },
+
+  playThisData: function(e, data) {
+      if (!data.player || !data.levelCompletePortal || !data.enemyPortals || !data.food || !data.pointsFood || !data.walls || !data.ladders) {
+          alert('insufficient data to play');
+          return;
+      }
+      
+      game.init(data);
+  }
 };
