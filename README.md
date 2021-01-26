@@ -5,6 +5,8 @@
 ## TODO
 ## Map
 - add a one directional wall where you can fall through but not jump up it
+    - enemies can choose to fall through or traverse these
+    - update the maps to include these where they should be
 
 ### Backend
 - add a high score table 
