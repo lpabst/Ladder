@@ -22,6 +22,7 @@ const game = {
       food: [],
       pointsFood: [],
       spikes: [],
+      enemySpikes: [],
       eventListeners: [],
       keys: { down: {} },
       gameLevel: 1,
@@ -144,6 +145,9 @@ const game = {
     });
     level.spikes.forEach((spike) => {
       data.spikes.push(new Spike(spike.x, spike.y));
+    });
+    level.enemySpikes.forEach((enemySpike) => {
+      data.enemySpikes.push(new EnemySpike(enemySpike.x, enemySpike.y));
     });
   },
 
@@ -292,6 +296,7 @@ const game = {
     data.food.forEach((food) => food.render(data));
     data.pointsFood.forEach((pointsFood) => pointsFood.render(data));
     data.spikes.forEach((spike) => spike.render(data));
+    data.enemySpikes.forEach((enemySpike) => enemySpike.render(data));
   },
 
   /***************** END GAME LOOP ******************/

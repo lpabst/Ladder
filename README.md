@@ -3,11 +3,8 @@
 - https://www.youtube.com/watch?v=9_-LG0KAhZY
 
 ## TODO
-## Enemy Movement
-- When an enemy hits a ladder, it should make a choice to either continue, reverse direction, or go down (if available)
-
-### Levels
-- build some levels based on the youtube video above
+## Map
+- add a one directional wall where you can fall through but not jump up it
 
 ### Backend
 - add a high score table 

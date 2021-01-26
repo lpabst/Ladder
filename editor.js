@@ -16,6 +16,7 @@ var editor = {
       food: [],
       pointsFood: [],
       spikes: [],
+      enemySpikes: [],
       click: {
         count: 0,
         lastLocation: null,
@@ -141,22 +142,33 @@ var editor = {
               if (item.id === entity.id) {
                 data[entity.type].splice(index, 1);
               }
-            })
+            });
           }
         }
         if (data.player) deleteIfTouchingMouse(data.player);
-        if (data.levelCompletePortal) deleteIfTouchingMouse(data.levelCompletePortal);
-        if (data.walls) data.walls.forEach((wall) => deleteIfTouchingMouse(wall));
-        if (data.ladders) data.ladders.forEach((ladder) => deleteIfTouchingMouse(ladder));
+        if (data.levelCompletePortal)
+          deleteIfTouchingMouse(data.levelCompletePortal);
+        if (data.walls)
+          data.walls.forEach((wall) => deleteIfTouchingMouse(wall));
+        if (data.ladders)
+          data.ladders.forEach((ladder) => deleteIfTouchingMouse(ladder));
         if (data.food) data.food.forEach((food) => deleteIfTouchingMouse(food));
-        if (data.pointsFood) data.pointsFood.forEach(
-          (pointsFood) =>deleteIfTouchingMouse(pointsFood)
-        );
-        if (data.enemyPortals) data.enemyPortals.forEach(
-          (enemyPortal) => deleteIfTouchingMouse(enemyPortal)
-        );
-        if (data.enemies) data.enemies.forEach((enemy) => deleteIfTouchingMouse(enemy));
-        if (data.spikes) data.spikes.forEach((spike) => deleteIfTouchingMouse(spike));
+        if (data.pointsFood)
+          data.pointsFood.forEach((pointsFood) =>
+            deleteIfTouchingMouse(pointsFood)
+          );
+        if (data.enemyPortals)
+          data.enemyPortals.forEach((enemyPortal) =>
+            deleteIfTouchingMouse(enemyPortal)
+          );
+        if (data.enemies)
+          data.enemies.forEach((enemy) => deleteIfTouchingMouse(enemy));
+        if (data.spikes)
+          data.spikes.forEach((spike) => deleteIfTouchingMouse(spike));
+        if (data.enemySpikes)
+          data.enemySpikes.forEach((enemySpike) =>
+            deleteIfTouchingMouse(enemySpike)
+          );
         break;
       }
       // p = player
@@ -238,6 +250,16 @@ var editor = {
         data.additionHistory.push(spike.type);
         break;
       }
+      // 8 = enemy spike
+      case 56: {
+        const enemySpike = new EnemySpike(
+          data.click.currentLocation.x,
+          data.click.currentLocation.y
+        );
+        data.enemySpikes.push(enemySpike);
+        data.additionHistory.push(enemySpike.type);
+        break;
+      }
       // f = food
       case 70: {
         const food = new Food(
@@ -287,6 +309,8 @@ var editor = {
     if (data.pointsFood)
       data.pointsFood.forEach((pointsFood) => pointsFood.render(data));
     if (data.spikes) data.spikes.forEach((spike) => spike.render(data));
+    if (data.enemySpikes)
+      data.enemySpikes.forEach((enemySpike) => enemySpike.render(data));
   },
 
   logEntities: function (e, data) {
@@ -298,6 +322,7 @@ var editor = {
       laddersText = "",
       wallsText = "",
       spikesText = "";
+      enemySpikesText = "";
 
     if (data.player) {
       playerText = `{ x: ${data.player.x}, y: ${data.player.y}}`;
@@ -341,6 +366,12 @@ var editor = {
         spikesText += `{ x: ${spike.x}, y: ${spike.y} },`;
       });
     }
+    if (data.enemySpikes) {
+      data.enemySpikes.forEach((enemySpike, i) => {
+        if (i !== 0) enemySpikesText += "\n";
+        enemySpikesText += `{ x: ${enemySpike.x}, y: ${enemySpike.y} },`;
+      });
+    }
 
     console.log(`
         timeAllowed: 100000,
@@ -364,7 +395,9 @@ var editor = {
         spikes: [
             ${spikesText}
         ],
-
+        enemySpikes: [
+          ${enemySpikesText}
+        ],
     `);
   },
 
@@ -406,6 +439,7 @@ var editor = {
     data.food = [];
     data.pointsFood = [];
     data.spikes = [];
+    data.enemySpikes = [];
     data.ladders = [];
     data.walls = [];
     if (entityData.player) {
@@ -432,6 +466,11 @@ var editor = {
     }
     if (entityData.spikes) {
       entityData.spikes.forEach((s) => data.spikes.push(new Spike(s.x, s.y)));
+    }
+    if (entityData.enemySpikes) {
+      entityData.enemySpikes.forEach((es) =>
+        data.enemySpikes.push(new EnemySpike(es.x, es.y))
+      );
     }
     if (entityData.ladders) {
       entityData.ladders.forEach((l) =>

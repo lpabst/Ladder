@@ -98,6 +98,11 @@ function Spike(x, y) {
   this.type = "spikes";
 }
 
+function EnemySpike(x, y) {
+  setupTextEntity(this, x, y, 8, 8, "*", "gray");
+  this.type = "enemySpikes";
+}
+
 function Player(x, y) {
   setupTextEntity(this, x, y, 8, 17, "g", "white");
   this.startX = x;
@@ -118,7 +123,6 @@ function Player(x, y) {
     var newX = this.x;
     var newY = this.y;
 
-    // update player x location based on which keys are down
     if (leftArrowDown) {
       newX -= this.speed;
     }
@@ -289,6 +293,9 @@ function Enemy(x, y, walkingLeft) {
   this.walkingLeft = walkingLeft;
   this.yVel = 0;
   this.type = "enemies";
+  this.currentLadder = null;
+  this.crossingLadder = false;
+  this.descendingLadder = false;
 
   // if on top of a wall, move in a direction. Otherwise, fall with gravity
   // eventually disappears off the map
@@ -303,6 +310,46 @@ function Enemy(x, y, walkingLeft) {
     // gravity accelerates us up to a max speed
     if (this.yVel < maxGravitySpeed) {
       this.yVel += gravityAcceleration;
+    }
+
+    // find any ladder that we are touching
+    var ladderBeingTouched = data.ladders.find((ladder) =>
+      isCollision(ladder, this)
+    );
+
+    // if we aren't touching any ladders, make sure our ladder controls are reset to null/false
+    if (!ladderBeingTouched) {
+      this.currentLadder = null;
+      this.descendingLadder = false;
+      this.crossingLadder = false;
+    }
+
+    // if we are touching a ladder, run some logic to see what to do
+    if (ladderBeingTouched) {
+      if (
+        !this.currentLadder ||
+        ladderBeingTouched.id !== this.currentLadder.id
+      ) {
+        // we've started touching a new ladder and need to make a decision
+        this.currentLadder = ladderBeingTouched;
+        var random = Math.random();
+        if (random < 0.33) {
+          console.log("reverse direction");
+          this.walkingLeft = !this.walkingLeft;
+        }
+        if (random >= 0.33 && random < 0.67) {
+          console.log("cross ladder");
+          this.crossingLadder = true;
+        }
+        if (random >= 0.67) {
+          console.log("descend ladder");
+          this.descendingLadder = true;
+        }
+      }
+
+      // our yVel is controlled if we are touching a ladder
+      if (this.crossingLadder) this.yVel = 0;
+      if (this.descendingLadder) this.yVel = this.speed;
     }
 
     newY += this.yVel;
@@ -369,11 +416,13 @@ function Enemy(x, y, walkingLeft) {
     this.x = newX;
     this.y = newY;
 
-    // enemies that fall off the bottom of the map die/disappear and the player gets a point
-    if (newY > data.canvas.h) {
-      data.enemies.splice(index, 1);
-      data.points++;
-    }
+    // see if we are touching an enemySpike, and if so it kills us (player gets a point for each enemy that dies)
+    data.enemySpikes.forEach((enemySpike) => {
+      if (isCollision(enemySpike, this)) {
+        data.enemies.splice(index, 1);
+        data.points++;
+      }
+    });
   };
 
   this.render = function (data) {
@@ -392,7 +441,7 @@ function Ladder(x, y, h) {
   this.w = 16;
   this.h = h;
   this.color = "white";
-  this.numRungs = 4;
+  this.numRungs = Math.ceil(this.h / 20);
   this.rungSpacing = this.h / (this.numRungs + 1);
   this.type = "ladders";
 
