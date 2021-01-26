@@ -376,12 +376,12 @@ function Enemy(x, y, walkingLeft) {
   };
 }
 
-function Ladder(x, y) {
+function Ladder(x, y, h) {
   this.id = randomString(64);
   this.x = x;
   this.y = y;
   this.w = 16;
-  this.h = 80;
+  this.h = h;
   this.color = "white";
   this.numRungs = 4;
   this.rungSpacing = this.h / (this.numRungs + 1);

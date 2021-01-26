@@ -11,6 +11,15 @@
 <body>
     <div class='content'>
         <p class='header'>Ladder</p>
+        <button id='startButton' onclick="game.init()">Start Game</button>
+        <button id='editButton' onclick="editor.init()">Editor</button>
+        <button id='logEditorEntities' class='hidden editorElement'>Log Editor Entities</button>
+        <span class='hidden editorElement'>Level: </span>
+        <input id='level' class='hidden editorElement' style='z-index: 1000;' />
+        <button id='saveButton' class='hidden editorElement'>Save Level</button>
+        <button id='loadButtonStorage' class='hidden editorElement'>Load Level From Storage</button>
+        <button id='loadButtonData' class='hidden editorElement'>Load Level From Data</button>
+        <button id='restoreButton' class='hidden editorElement'>Restore Last Save</button>
         <canvas id='canvas' class='canvas' width=800 height=800></canvas>
     </div>
 </body>
@@ -18,6 +27,8 @@
 <script src='./helpers.js'></script>
 <script src='./entities.js'></script>
 <script src='./canvas.js'></script>
+<script src='./levelData.js'></script>
 <script src='./index.js'></script>
+<script src='./editor.js'></script>
 
 </html>

@@ -1,50 +1,10 @@
-var levels = {
-  1: {
-    // time allowed in milliseconds
-    timeAllowed: 100000,
-    player: { x: 380, y: 480 },
-    enemyPortals: [
-      { x: 600, y: 300, spawnMovingLeft: true },
-      { x: 200, y: 300, spawnMovingLeft: false },
-    ],
-    levelCompletePortal: { x: 600, y: 580 },
-    food: [{ x: 400, y: 560 }],
-    pointsFood: [{ x: 500, y: 660 }],
-    ladders: [{ x: 400, y: 450 }],
-    walls: [
-      { x: 520, y: 660, w: 30, h: 4 },
-      { x: 480, y: 320, w: 300, h: 4 },
-      { x: 350, y: 600, w: 400, h: 4 },
-      { x: 200, y: 680, w: 400, h: 4 },
-      { x: 100, y: 750, w: 400, h: 4 },
-      { x: 580, y: 720, w: 4, h: 30 },
-      { x: 580, y: 570, w: 4, h: 30 },
-      { x: 380, y: 650, w: 4, h: 30 },
-      { x: 480, y: 650, w: 4, h: 30 },
-      { x: 380, y: 550, w: 4, h: 30 },
-    ],
-    spikes: [{ x: 650, y: 580 }],
-  },
-  2: {
-    timeAllowed: 100000,
-    player: { x: 380, y: 480 },
-    enemyPortals: [{ x: 600, y: 300, spawnMovingLeft: true }],
-    levelCompletePortal: { x: 600, y: 600 },
-    food: [{ x: 200, y: 200 }],
-    pointsFood: [{ x: 500, y: 700 }],
-    ladders: [{ x: 200, y: 430 }],
-    walls: [
-      { x: 480, y: 320, w: 300, h: 4 },
-      { x: 580, y: 720, w: 4, h: 30 },
-    ],
-    spikes: [{ x: 500, y: 500 }],
-  },
-};
-
 const game = {
   /*********** INITIALIZATION ******************/
 
   init: function () {
+    // hide editor button
+    document.getElementById("editButton").classList.add("hidden");
+
     // create data object to be passed around
     const data = {
       canvas: null,
@@ -86,7 +46,7 @@ const game = {
 
   initEventListeners: function (data) {
     // helper function creates the event listener and adds it to the data.eventListeners array so we can unbind it later
-    function createEventListner(target, eventType, handler) {
+    function createEventListener(target, eventType, handler) {
       target.addEventListener(eventType, handler);
       data.eventListeners.push({
         target: target,
@@ -95,12 +55,12 @@ const game = {
       });
     }
 
-    createEventListner(window, "keydown", (e) => game.handleKeydown(e, data));
-    createEventListner(window, "keyup", (e) => game.handleKeyup(e, data));
+    createEventListener(window, "keydown", (e) => game.handleKeydown(e, data));
+    createEventListener(window, "keyup", (e) => game.handleKeyup(e, data));
   },
 
   initLevel(data, retry = false) {
-    var level = levels[data.gameLevel];
+    var level = levelData[data.gameLevel];
 
     // if we complete all of the levels, start back at level 1
     if (!level) {
@@ -126,7 +86,7 @@ const game = {
   },
 
   initEntitiesForLevel(data) {
-    var level = levels[data.gameLevel];
+    var level = levelData[data.gameLevel];
 
     // see if we're missing data in our level setup info
     if (
@@ -171,7 +131,7 @@ const game = {
       data.pointsFood.push(new PointsFood(pointsFood.x, pointsFood.y));
     });
     level.ladders.forEach((ladder) => {
-      data.ladders.push(new Ladder(ladder.x, ladder.y));
+      data.ladders.push(new Ladder(ladder.x, ladder.y, ladder.h));
     });
     level.spikes.forEach((spike) => {
       data.spikes.push(new Spike(spike.x, spike.y));
@@ -272,7 +232,7 @@ const game = {
     var playerHitEnemy = data.enemies.some((enemy) =>
       isCollision(data.player, enemy)
     );
-    var playerHitSpike = data.spikes.some((spike) => 
+    var playerHitSpike = data.spikes.some((spike) =>
       isCollision(spike, data.player)
     );
     if (playerHitEnemy || playerHitSpike) {
@@ -359,6 +319,3 @@ const game = {
     data.eventListeners = [];
   },
 };
-
-// get everything rolling
-game.init();
