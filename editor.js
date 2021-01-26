@@ -66,17 +66,8 @@ var editor = {
 
     const key = e.which || e.keyCode || 0;
     data.lastKey = key;
-  },
 
-  handleMousedown: function (e, data) {
-    console.log(data.lastKey);
-    if (data.click.currentLocation) {
-      data.click.lastLocation = data.click.currentLocation;
-    }
-    data.click.currentLocation = { x: e.offsetX, y: e.offsetY };
-    data.click.count++;
-
-    switch (data.lastKey) {
+    switch (key) {
       // z = undo last addition
       case 90: {
         if (!data || !data.additionHistory || data.additionHistory.length === 0)
@@ -122,7 +113,50 @@ var editor = {
         } else {
           data[itemToRestore.type].push(itemToRestore);
         }
+        break;
+      }
+    }
+  },
 
+  handleMousedown: function (e, data) {
+    console.log(data.lastKey);
+    if (data.click.currentLocation) {
+      data.click.lastLocation = data.click.currentLocation;
+    }
+    data.click.currentLocation = { x: e.offsetX, y: e.offsetY };
+    data.click.count++;
+
+    switch (data.lastKey) {
+      // d = delete object the mouse is touching
+      case 68: {
+        const mousePos = { x: e.offsetX, y: e.offsetY, w: 1, h: 1 };
+        function deleteIfTouchingMouse(entity) {
+          if (isCollision(mousePos, entity)) {
+            data.undoHistory.push(entity);
+            if (entity.type === "player") data.player = null;
+            if (entity.type === "levelCompletePortal")
+              data.levelCompletePortal = null;
+            console.log(data, entity);
+            data[entity.type].forEach((item, index) => {
+              if (item.id === entity.id) {
+                data[entity.type].splice(index, 1);
+              }
+            })
+          }
+        }
+        if (data.player) deleteIfTouchingMouse(data.player);
+        if (data.levelCompletePortal) deleteIfTouchingMouse(data.levelCompletePortal);
+        if (data.walls) data.walls.forEach((wall) => deleteIfTouchingMouse(wall));
+        if (data.ladders) data.ladders.forEach((ladder) => deleteIfTouchingMouse(ladder));
+        if (data.food) data.food.forEach((food) => deleteIfTouchingMouse(food));
+        if (data.pointsFood) data.pointsFood.forEach(
+          (pointsFood) =>deleteIfTouchingMouse(pointsFood)
+        );
+        if (data.enemyPortals) data.enemyPortals.forEach(
+          (enemyPortal) => deleteIfTouchingMouse(enemyPortal)
+        );
+        if (data.enemies) data.enemies.forEach((enemy) => deleteIfTouchingMouse(enemy));
+        if (data.spikes) data.spikes.forEach((spike) => deleteIfTouchingMouse(spike));
         break;
       }
       // p = player
@@ -152,7 +186,7 @@ var editor = {
             dimensions.h
           );
           data.walls.push(wall);
-          data.additionHistory.push(wall.type)
+          data.additionHistory.push(wall.type);
         }
         break;
       }
@@ -190,7 +224,7 @@ var editor = {
           const ladder = new Ladder(dimensions.x, dimensions.y, dimensions.h);
           console.log(dimensions);
           data.ladders.push(ladder);
-          data.additionHistory.push(ladder.type)
+          data.additionHistory.push(ladder.type);
         }
         break;
       }
@@ -302,7 +336,7 @@ var editor = {
       });
     }
     if (data.spikes) {
-      data.spikes.forEach((spike) => {
+      data.spikes.forEach((spike, i) => {
         if (i !== 0) spikesText += "\n";
         spikesText += `{ x: ${spike.x}, y: ${spike.y} },`;
       });
@@ -435,6 +469,7 @@ var editor = {
   },
 
   playThisData: function (e, data) {
+    this.logEntities(null, data)
     if (
       !data.player ||
       !data.levelCompletePortal ||

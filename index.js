@@ -214,7 +214,6 @@ const game = {
     // see if player is touching the level complete portal
     if (isCollision(data.player, data.levelCompletePortal)) {
       data.gameLevel++;
-      data.lives++;
       data.points += 100;
       game.initLevel(data);
     }

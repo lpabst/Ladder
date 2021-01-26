@@ -6,6 +6,8 @@ var debugBoundaries = false;
 
 // check if entities are touching in any way
 function isCollision(entity1, entity2) {
+  window.entity1 = entity1;
+  window.entity2 = entity2;
   var entity1Left = entity1.x;
   var entity1Right = entity1.x + entity1.w;
   var entity1Top = entity1.y;
