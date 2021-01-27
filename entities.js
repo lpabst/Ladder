@@ -59,15 +59,23 @@ function setupTextEntity(thisContext, x, y, w, h, text, color) {
   };
 }
 
-function EnemyPortal(x, y, spawnMovingLeft = true) {
+function EnemyPortal(
+  x, 
+  y, 
+  spawnMovingLeft = true, 
+  spawnFrame = 20, 
+  spawnChance = 0.20
+) {
   setupTextEntity(this, x, y, 8, 13, "v", "gray");
   this.spawnMovingLeft = spawnMovingLeft;
   this.type = "enemyPortals";
+  this.spawnFrame = spawnFrame;
+  this.spawnChance = spawnChance;
 
   this.maybeSpawnEnemy = function  (data) {
     var random = Math.random();
     // 2 levels of randomness here to determine spawn probability
-    if (random < 0.21 && data.animationFrame % 18 === 0){
+    if (random < spawnChance && data.animationFrame % spawnFrame === 0){
       const enemy = new Enemy(
         this.x,
         this.y,
@@ -334,15 +342,12 @@ function Enemy(x, y, walkingLeft) {
         this.currentLadder = ladderBeingTouched;
         var random = Math.random();
         if (random < 0.33) {
-          console.log("reverse direction");
           this.walkingLeft = !this.walkingLeft;
         }
         if (random >= 0.33 && random < 0.67) {
-          console.log("cross ladder");
           this.crossingLadder = true;
         }
         if (random >= 0.67) {
-          console.log("descend ladder");
           this.descendingLadder = true;
         }
       }

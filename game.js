@@ -124,7 +124,13 @@ const game = {
     data.player = new Player(level.player.x, level.player.y);
     level.enemyPortals.forEach((portal) => {
       data.enemyPortals.push(
-        new EnemyPortal(portal.x, portal.y, portal.spawnMovingLeft)
+        new EnemyPortal(
+          portal.x,
+          portal.y,
+          portal.spawnMovingLeft,
+          portal.spawnFrame,
+          portal.spawnChance
+        )
       );
     });
     data.levelCompletePortal = new LevelCompletePortal(

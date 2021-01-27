@@ -453,7 +453,15 @@ var editor = {
     }
     if (entityData.enemyPortals) {
       entityData.enemyPortals.forEach((p) =>
-        data.enemyPortals.push(new EnemyPortal(p.x, p.y, p.spawnMovingLeft))
+        data.enemyPortals.push(
+          new EnemyPortal(
+            p.x,
+            p.y,
+            p.spawnMovingLeft,
+            p.spawnFrame,
+            p.spawnChance
+          )
+        )
       );
     }
     if (entityData.food) {
