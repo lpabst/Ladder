@@ -9,6 +9,7 @@
     - update the maps to include these where they should be
 ### Bugs
 - Walls 60 vertical pixels apart you can stick to the bottom of the wall with a double jump???
+- I can vertically jump up the edge of a wall if I just keep pressing the jump button....
 
 ### Backend
 - add a high score table 

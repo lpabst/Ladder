@@ -115,13 +115,20 @@ const game = {
     data.player = null;
     data.levelCompletePortal = null;
     data.enemyPortals = [];
-    data.walls = [];
     data.enemies = [];
-    data.food = [];
+    data.walls = [];
     data.ladders = [];
+    data.food = [];
+    data.pointsFood = [];
+    data.spikes = [];
+    data.enemySpike = [];
 
     // build entities from level setup info
     data.player = new Player(level.player.x, level.player.y);
+    data.levelCompletePortal = new LevelCompletePortal(
+      level.levelCompletePortal.x,
+      level.levelCompletePortal.y
+    );
     level.enemyPortals.forEach((portal) => {
       data.enemyPortals.push(
         new EnemyPortal(
@@ -133,21 +140,17 @@ const game = {
         )
       );
     });
-    data.levelCompletePortal = new LevelCompletePortal(
-      level.levelCompletePortal.x,
-      level.levelCompletePortal.y
-    );
     level.walls.forEach((wall) => {
       data.walls.push(new Wall(wall.x, wall.y, wall.w, wall.h));
+    });
+    level.ladders.forEach((ladder) => {
+      data.ladders.push(new Ladder(ladder.x, ladder.y, ladder.h));
     });
     level.food.forEach((food) => {
       data.food.push(new Food(food.x, food.y));
     });
     level.pointsFood.forEach((pointsFood) => {
       data.pointsFood.push(new PointsFood(pointsFood.x, pointsFood.y));
-    });
-    level.ladders.forEach((ladder) => {
-      data.ladders.push(new Ladder(ladder.x, ladder.y, ladder.h));
     });
     level.spikes.forEach((spike) => {
       data.spikes.push(new Spike(spike.x, spike.y));
@@ -263,11 +266,12 @@ const game = {
     }
 
     if (data.playerJustDied) {
-      // reset player position & level timer, but keep level going
+      // reset player position & level timer, & enemies, but don't reset food and such
       data.playerJustDied = false;
       data.levelStartTime = new Date().getTime();
       data.levelTimeRemaining = data.levelTimeAllowed;
       data.lives--;
+      data.enemies = [];
       data.player.x = data.player.startX;
       data.player.y = data.player.startY;
     }
