@@ -1,0 +1,30 @@
+{
+  "name": "ladder",
+  "version": "1.0.0",
+  "description": "- This is a reproduction of an old game called Ladder that I used to play on the K-Pro 2 - https://www.youtube.com/watch?v=9_-LG0KAhZY",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lpabst/Ladder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lpabst/Ladder/issues"
+  },
+  "homepage": "https://github.com/lpabst/Ladder#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "massive": "^6.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}

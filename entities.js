@@ -189,8 +189,8 @@ function Player(x, y) {
       );
 
       if (newPositionCollidesWithWall) {
-        // if you collide with a wall, you get your 2 jumps back
-        if (this.availableJumps < 2) {
+        // if you collide with a wall that is beneath you, you get your 2 jumps back
+        if (wall.y > this.y && this.availableJumps < 2) {
           this.availableJumps = 2;
         }
 
