@@ -72,8 +72,7 @@ async function startNodeService() {
 
   app.post("/game/end", async (req, res) => {
     try {
-      console.log(req.body)
-      if (!req.body || !req.body.name || !req.body.score) {
+      if (!req.body || req.body.score === undefined) {
         return res
           .status(400)
           .send({ error: true, message: "Name and score are required" });

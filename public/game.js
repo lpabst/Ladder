@@ -18,7 +18,6 @@ const game = {
       console.log('Done! starting game');
 
       const name = document.getElementById('usersName').value;
-      console.log(name);
 
       // create data object to be passed around
       const data = {
@@ -351,7 +350,7 @@ const game = {
     // let backend know what the score was
     var endGameBody = {
       name: data.name,
-      score: data.points || -1
+      score: data.points
     }
     console.log('sending score to server...');
     makeAjaxCall('POST', '/game/end', endGameBody, function() {
