@@ -188,8 +188,7 @@ async function startNodeService() {
     }
   });
 
-  const port = 8005;
-  app.listen(port, () => console.log(`App is running on ${port}`));
+  app.listen(process.env.PORT, () => console.log(`App is running on ${process.env.PORT}`));
 }
 
 startNodeService();
