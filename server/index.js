@@ -35,6 +35,7 @@ async function startNodeService() {
     console.error("error connecting to db");
     throw e;
   });
+  console.log('db connected');
   app.set("db", db);
 
   // host front end 
@@ -42,6 +43,7 @@ async function startNodeService() {
 
   // health
   app.get('/health', (req, res) => {
+    console.log('health endpoint')
     return res.status(200).send('oks')
   })
 
