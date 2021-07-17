@@ -9,10 +9,5 @@
     - update the maps to include these where they should be
 ### Bugs
 - Walls 60 vertical pixels apart you can stick to the bottom of the wall with a double jump???
-- I can vertically jump up the edge of a wall if I just keep pressing the jump button....
-
-### Backend
-- add a high score table 
-- earning a high score allows the player to enter a name into the high score table
-- host the game with simple backend for high scores on heroku or something. 
-    - add some logic to check for cheating!
+### Game Over / High Scores
+- users should be able to enter their name if they score a high score, plus see the high scores, etc
