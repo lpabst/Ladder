@@ -188,7 +188,7 @@ async function startNodeService() {
     }
   });
 
-  const port = 8080;
+  const port = 8005;
   app.listen(port, () => console.log(`App is running on ${port}`));
 }
 
