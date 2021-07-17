@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const massive = require("massive");
+const path = require('path');
 
 // helper function
 function randomString(length) {
@@ -35,6 +36,14 @@ async function startNodeService() {
     throw e;
   });
   app.set("db", db);
+
+  // host front end 
+  app.use(express.static(path.join(__dirname, '../public')));
+
+  // health
+  app.get('/health', (req, res) => {
+    return res.status(200).send('ok')
+  })
 
   app.post("/game/start", (req, res) => {
     try {

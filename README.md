@@ -12,5 +12,7 @@
 ### Game Over / High Scores
 - users should be able to enter their name if they score a high score, plus see the high scores, etc
 
-## DB
-- to connectt to db in cli, I'm using pgcli `pgcli -h host -U user -W 'password' -d database`
+## DB/Hosted App
+- to connect to the db in cli, I'm using pgcli `pgcli -h host -U user -W 'password' -d database`
+- `git push heroku master` will deploy my changes to my hosted heroku app
+- see server logs by navigating to this directory, then run `herokuk logs --tail` 
