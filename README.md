@@ -9,8 +9,6 @@
     - update the maps to include these where they should be
 ### Bugs
 - Walls 60 vertical pixels apart you can stick to the bottom of the wall with a double jump???
-### Game Over / High Scores
-- users should be able to enter their name if they score a high score, plus see the high scores, etc
 
 ## DB/Hosted App
 - to connect to the db in cli, I'm using pgcli `pgcli -h host -U user -W 'password' -d database`
