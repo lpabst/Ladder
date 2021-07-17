@@ -72,6 +72,7 @@ async function startNodeService() {
 
   app.post("/game/end", async (req, res) => {
     try {
+      console.log(req.body)
       if (!req.body || !req.body.name || !req.body.score) {
         return res
           .status(400)
@@ -163,7 +164,6 @@ async function startNodeService() {
 
       res.status(204).end();
     } catch (e) {
-      console.error(e);
       res.status(500).end();
     }
   });
@@ -173,7 +173,6 @@ async function startNodeService() {
       const highScores = await db.query(
         "SELECT * from scores ORDER BY score DESC LIMIT 10"
       );
-      console.log(highScores);
       return res.status(200).send({
         highScores: highScores.map((row) => ({
           name: row.name,
@@ -182,7 +181,6 @@ async function startNodeService() {
         })),
       });
     } catch (e) {
-      console.error(e);
       res.status(500).end();
     }
   });

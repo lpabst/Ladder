@@ -54,3 +54,31 @@ function calculateDimensions(
     };
   }
 }
+
+function makeAjaxCall(method, url, body, callback) {
+  var xmlhttp = new XMLHttpRequest();
+
+  xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
+        var responseBody;
+        try {
+          responseBody = JSON.parse(xmlhttp.response);
+        } catch(e) {}
+        var response = {
+          status: xmlhttp.status,
+          statusText: xmlhttp.statusText,
+          data: responseBody,
+        }
+        callback(response);
+      }
+  };
+
+  xmlhttp.open(method, url, true);
+
+  if (!body) {
+    xmlhttp.send();
+  } else{
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.send(JSON.stringify(body));
+  }
+}

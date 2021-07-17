@@ -6,13 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ladder</title>
     <link rel='stylesheet' href='./index.css' />
+<style>
+    th,
+    td {
+        border: 1px solid black;
+        padding: 3px 5px;
+    }
+
+    #highScoresTable {
+        margin-top: 20px;
+    }
+</style>
 </head>
 
 <body>
     <div class='content'>
         <p class='header'>Ladder</p>
+        <p id='usersNamePrompt'>Enter your name:</p>
+        <input id='usersName' placeholder='name' />
         <button id='startButton' onclick="game.init()">Start Game</button>
-        <button id='editButton' onclick="editor.init()">Editor</button>
+        <button id='editButton' onclick="editor.init()" class="hidden">Editor</button>
         <div id='editorElements' style='display: none;'>
             <button id='logEditorEntities'>Log Editor Entities</button>
             <span>Level: </span>
@@ -23,6 +36,14 @@
             <button id='restoreButton'>Restore Last Save</button>
             <button id='playLevelButton'>Play This Data</button>
         </div>
+        <table id='highScoresTable'>
+            <caption>High Scores</caption>
+            <tr>
+                <th>Name</th>
+                <th>Score</th>
+            </tr>
+            <tbody id='highScoresTableBody'></tbody>
+        </table>
         <canvas id='canvas' class='canvas' width=800 height=800></canvas>
     </div>
 </body>
@@ -33,5 +54,39 @@
 <script src='./levelData.js'></script>
 <script src='./game.js'></script>
 <script src='./editor.js'></script>
+<script>
+    function getHighScores(callback) {
+        makeAjaxCall('GET', '/scores', null, function (res) {
+            if (!res || !res.data || !res.data.highScores) {
+                return;
+            }
+
+            // create new table body and replace the old one
+            var newTbody = document.createElement('tbody');
+            newTbody.id = 'highScoresTableBody';
+            res.data.highScores.forEach(function (row) {
+                var tr = newTbody.insertRow(-1)
+                var cell1 = tr.insertCell(0);
+                var cell1Text = document.createTextNode(row.name);
+                cell1.appendChild(cell1Text);
+                var cell2 = tr.insertCell(1);
+                var cell2Text = document.createTextNode(row.score);
+                cell2.appendChild(cell2Text);
+            })
+            var highScoresTableBody = document.getElementById('highScoresTableBody');
+            highScoresTableBody.parentNode.replaceChild(newTbody, highScoresTableBody)
+
+            if (callback) {
+                callback();
+            }
+        })
+    }
+    getHighScores();
+
+    // show editor button locally
+    if (window.location.href.match(/localhost/i)) {
+        document.getElementById("editButton").classList.remove("hidden");
+    }
+</script>
 
 </html>

@@ -2,42 +2,58 @@ const game = {
   /*********** INITIALIZATION ******************/
 
   init: function (editorData = null) {
-    // hide editor button
+    // hide buttons, inputs, and high scores
     document.getElementById("editButton").classList.add("hidden");
     document.getElementById("startButton").classList.add("hidden");
+    document.getElementById('highScoresTable').classList.add('hidden');
+    document.getElementById('usersNamePrompt').classList.add('hidden');
+    document.getElementById('usersName').classList.add('hidden');
 
-    // create data object to be passed around
-    const data = {
-      canvas: null,
-      gameOver: false,
-      gameRunning: true,
-      animationFrame: 0,
-      player: null,
-      playerJustDied: false,
-      enemyPortals: [],
-      levelCompletePortal: null,
-      enemies: [],
-      walls: [],
-      ladders: [],
-      food: [],
-      pointsFood: [],
-      spikes: [],
-      enemySpikes: [],
-      eventListeners: [],
-      keys: { down: {} },
-      gameLevel: 1,
-      levelStartTime: null,
-      levelTimeAllowed: null,
-      levelTimeRemaining: null,
-      points: 0,
-      lives: 2,
-    };
+    // let backend know we are starting the game
+    var startGameBody = {
+      startToken: randomString(32)
+    }
+    console.log('getting game token...')
+    makeAjaxCall('POST', '/game/start', startGameBody, function(res) {
+      console.log('Done! starting game');
 
-    game.initCanvas(data);
-    game.initEventListeners(data);
-    game.initLevel(data, editorData);
+      const name = document.getElementById('usersName').value;
+      console.log(name);
 
-    game.run(data);
+      // create data object to be passed around
+      const data = {
+        canvas: null,
+        gameOver: false,
+        gameRunning: true,
+        animationFrame: 0,
+        player: null,
+        playerJustDied: false,
+        enemyPortals: [],
+        levelCompletePortal: null,
+        enemies: [],
+        walls: [],
+        ladders: [],
+        food: [],
+        pointsFood: [],
+        spikes: [],
+        enemySpikes: [],
+        eventListeners: [],
+        keys: { down: {} },
+        gameLevel: 1,
+        levelStartTime: null,
+        levelTimeAllowed: null,
+        levelTimeRemaining: null,
+        name: name,
+        points: 0,
+        lives: 2,
+      };
+  
+      game.initCanvas(data);
+      game.initEventListeners(data);
+      game.initLevel(data, editorData);
+  
+      game.run(data);
+    })
   },
 
   initCanvas: function (data) {
@@ -69,7 +85,7 @@ const game = {
       // if retry is true, then we tried to start back at level one, but something still went wrong
       if (retry) {
         console.error("Something went wrong, please try again later: ");
-        data.gameOver(data);
+        game.gameOver(data);
         return;
       }
 
@@ -325,11 +341,30 @@ const game = {
   },
 
   gameOver: function (data) {
+    // prevents this from being called twice in a row
+    if (data.gameOver) return;
+
     data.gameOver = true;
     data.gameRunning = false;
     game.removeEventListeners(data);
-    data.canvas.drawText(270, 350, "GAME OVER", "white", 40);
-    document.getElementById("startButton").classList.remove("hidden");
+
+    // let backend know what the score was
+    var endGameBody = {
+      name: data.name,
+      score: data.points || -1
+    }
+    console.log('sending score to server...');
+    makeAjaxCall('POST', '/game/end', endGameBody, function() {
+      console.log('Done! Getting up to date high scores...');
+      getHighScores(function() {
+        console.log('Done!')
+        data.canvas.drawText(270, 350, "GAME OVER", "white", 40);
+        document.getElementById('usersNamePrompt').classList.remove('hidden');
+        document.getElementById('usersName').classList.remove('hidden');
+        document.getElementById("startButton").classList.remove("hidden");
+        document.getElementById('highScoresTable').classList.remove('hidden');
+      })
+    })
   },
 
   // unbinds all of the event listeners saved in the data.eventListeners list
