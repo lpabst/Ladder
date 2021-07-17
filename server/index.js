@@ -42,7 +42,7 @@ async function startNodeService() {
 
   // health
   app.get('/health', (req, res) => {
-    return res.status(200).send('ok')
+    return res.status(200).send('oks')
   })
 
   app.post("/game/start", (req, res) => {
