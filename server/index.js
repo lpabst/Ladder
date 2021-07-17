@@ -43,8 +43,7 @@ async function startNodeService() {
 
   // health
   app.get('/health', (req, res) => {
-    console.log('health endpoint')
-    return res.status(200).send('oks')
+    return res.status(200).send('ok')
   })
 
   app.post("/game/start", (req, res) => {
