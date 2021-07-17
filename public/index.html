@@ -67,7 +67,7 @@
             res.data.highScores.forEach(function (row) {
                 var tr = newTbody.insertRow(-1)
                 var cell1 = tr.insertCell(0);
-                var cell1Text = document.createTextNode(row.name);
+                var cell1Text = document.createTextNode(row.name || 'Anonymous');
                 cell1.appendChild(cell1Text);
                 var cell2 = tr.insertCell(1);
                 var cell2Text = document.createTextNode(row.score);

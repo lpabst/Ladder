@@ -85,6 +85,7 @@ async function startNodeService() {
         score: req.body.score,
         time_elapsed: -1,
         points_per_second: -1,
+        game_token: 'missing',
       };
 
       const db = req.app.get("db");
@@ -104,22 +105,25 @@ async function startNodeService() {
         return res.status(204).end();
       }
 
-      // clear gameToken
+      // clear gameToken cookie and track token for db to guarantee unique entries per game
       res.clearCookie("gameToken");
+      potentialNewHighScoreData.game_token = gameToken.token;
 
       const now = new Date().getTime();
       const timeElapsed = now - gameToken.startTime;
       potentialNewHighScoreData.time_elapsed = timeElapsed;
 
-      // if less than 10 seconds has elapsed, end here. This also slows down hacking attempts, and games that short won't get high scores anyways
-      if (timeElapsed < 10000) {
+      // if less than 20 seconds has elapsed, end here. You can't really die and end the game faster than that
+      // This also slows down hacking attempts, and games that short won't get high scores anyways
+      if (timeElapsed < 20000) {
         if (cheatersRowCount < 500) {
           await db.cheaters.insert(potentialNewHighScoreData);
         }
         return res.status(204).end();
       }
 
-      const pointsPerSecondThreshold = 50;
+      // I don't think it's possible to earn more than 10-15 points per second, but we'll set the threshold a little higher just in case
+      const pointsPerSecondThreshold = 20;
       const pointsPerSecond = (req.body.score / timeElapsed) * 1000;
       potentialNewHighScoreData.points_per_second = pointsPerSecond;
 
@@ -139,26 +143,14 @@ async function startNodeService() {
 
       // if we have less than 10 high scores, add this one
       if (highScores.length < 10) {
-        await db.scores.insert({
-          ip: ipAddress,
-          name: req.body.name,
-          score: req.body.score,
-          time_elapsed: timeElapsed,
-          points_per_second: pointsPerSecond,
-        });
+        await db.scores.insert(potentialNewHighScoreData);
       }
 
       // if this is higher than the lowest of our top 10 scores, delete the lowest and add this one
       const lowestHighScore = highScores[highScores.length - 1];
       if (req.body.score > lowestHighScore.score) {
         await db.scores.destroy({ id: lowestHighScore.id });
-        await db.scores.insert({
-          ip: ipAddress,
-          name: req.body.name,
-          score: req.body.score,
-          time_elapsed: timeElapsed,
-          points_per_second: pointsPerSecond,
-        });
+        await db.scores.insert(potentialNewHighScoreData);
       }
 
       res.status(204).end();
