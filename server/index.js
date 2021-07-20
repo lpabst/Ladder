@@ -85,7 +85,7 @@ async function startNodeService() {
         score: req.body.score,
         time_elapsed: -1,
         points_per_second: -1,
-        game_token: 'missing',
+        game_token: "missing",
       };
 
       const db = req.app.get("db");
@@ -138,15 +138,15 @@ async function startNodeService() {
       /***************** END CHEATING CHECKS *****************/
       // check current high scores
       const highScores = await db.query(
-        "SELECT * from scores ORDER BY score DESC LIMIT 10"
+        "SELECT * from scores ORDER BY score DESC LIMIT 20"
       );
 
-      // if we have less than 10 high scores, add this one
-      if (highScores.length < 10) {
+      // if we have less than 20 high scores, add this one
+      if (highScores.length < 20) {
         await db.scores.insert(potentialNewHighScoreData);
       }
 
-      // if this is higher than the lowest of our top 10 scores, delete the lowest and add this one
+      // if this is higher than the lowest of our top 20 scores, delete the lowest and add this one
       const lowestHighScore = highScores[highScores.length - 1];
       if (req.body.score > lowestHighScore.score) {
         await db.scores.destroy({ id: lowestHighScore.id });
