@@ -137,7 +137,7 @@ const game = {
     data.food = [];
     data.pointsFood = [];
     data.spikes = [];
-    data.enemySpike = [];
+    data.enemySpikes = [];
 
     // build entities from level setup info
     data.player = new Player(level.player.x, level.player.y);
