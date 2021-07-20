@@ -5,22 +5,23 @@ const game = {
     // hide buttons, inputs, and high scores
     document.getElementById("editButton").classList.add("hidden");
     document.getElementById("startButton").classList.add("hidden");
-    document.getElementById('highScoresTable').classList.add('hidden');
-    document.getElementById('usersNamePrompt').classList.add('hidden');
-    document.getElementById('usersName').classList.add('hidden');
+    document.getElementById("highScoresTable").classList.add("hidden");
+    document.getElementById("usersNamePrompt").classList.add("hidden");
+    document.getElementById("usersName").classList.add("hidden");
 
     // let backend know we are starting the game
     var startGameBody = {
-      startToken: randomString(32)
-    }
-    console.log('getting game token...')
-    makeAjaxCall('POST', '/game/start', startGameBody, function(res) {
-      console.log('Done! starting game');
+      startToken: randomString(32),
+    };
+    console.log("getting game token...");
+    makeAjaxCall("POST", "/game/start", startGameBody, function (res) {
+      console.log("Done! starting game");
 
-      const name = document.getElementById('usersName').value;
+      const name = document.getElementById("usersName").value;
 
       // create data object to be passed around
       const data = {
+        startTime: new Date().getTime(),
         canvas: null,
         gameOver: false,
         gameRunning: true,
@@ -46,13 +47,13 @@ const game = {
         points: 0,
         lives: 2,
       };
-  
+
       game.initCanvas(data);
       game.initEventListeners(data);
       game.initLevel(data, editorData);
-  
+
       game.run(data);
-    })
+    });
   },
 
   initCanvas: function (data) {
@@ -90,7 +91,7 @@ const game = {
 
       // otherwise, set game level back to 1 and try to init the level again
       data.gameLevel = 1;
-      game.initLevel(data, editorData, true);
+      return game.initLevel(data, editorData, true);
     }
 
     // build the entities for this level
@@ -350,20 +351,20 @@ const game = {
     // let backend know what the score was
     var endGameBody = {
       name: data.name,
-      score: data.points
-    }
-    console.log('sending score to server...');
-    makeAjaxCall('POST', '/game/end', endGameBody, function() {
-      console.log('Done! Getting up to date high scores...');
-      getHighScores(function() {
-        console.log('Done!')
+      score: data.points,
+    };
+    console.log("sending score to server...");
+    makeAjaxCall("POST", "/game/end", endGameBody, function () {
+      console.log("Done! Getting up to date high scores...");
+      getHighScores(function () {
+        console.log("Done!");
         data.canvas.drawText(270, 350, "GAME OVER", "white", 40);
-        document.getElementById('usersNamePrompt').classList.remove('hidden');
-        document.getElementById('usersName').classList.remove('hidden');
+        document.getElementById("usersNamePrompt").classList.remove("hidden");
+        document.getElementById("usersName").classList.remove("hidden");
         document.getElementById("startButton").classList.remove("hidden");
-        document.getElementById('highScoresTable').classList.remove('hidden');
-      })
-    })
+        document.getElementById("highScoresTable").classList.remove("hidden");
+      });
+    });
   },
 
   // unbinds all of the event listeners saved in the data.eventListeners list

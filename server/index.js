@@ -122,8 +122,8 @@ async function startNodeService() {
         return res.status(204).end();
       }
 
-      // I don't think it's possible to earn more than 10-15 points per second, but we'll set the threshold a little higher just in case
-      const pointsPerSecondThreshold = 20;
+      // It is quite literally impossible to score more than 17 points per second with the current setup. I played with dying turned off and constant points per second tracking, and played near perfectly, and was only able to get up to 16.9999 at any given point
+      const pointsPerSecondThreshold = 17;
       const pointsPerSecond = (req.body.score / timeElapsed) * 1000;
       potentialNewHighScoreData.points_per_second = pointsPerSecond;
 
