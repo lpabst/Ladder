@@ -24,7 +24,9 @@
         <p class='header'>Ladder</p>
         <p id='usersNamePrompt'>Enter your name:</p>
         <input id='usersName' placeholder='name' />
-        <button id='startButton' onclick="game.init()">Start Game</button>
+        <button id='startButton' onclick="game.init()">Start Infinite Game</button>
+        <input id='challengeModeDifficulty' type='number' placeholder='difficulty' />
+        <button id='startChallengeModeButton' onclick="game.init(null, true)">Start Challenge Game</button>
         <button id='editButton' onclick="editor.init()" class="hidden">Editor</button>
         <div id='editorElements' style='display: none;'>
             <button id='logEditorEntities'>Log Editor Entities</button>

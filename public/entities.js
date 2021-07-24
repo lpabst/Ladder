@@ -60,11 +60,11 @@ function setupTextEntity(thisContext, x, y, w, h, text, color) {
 }
 
 function EnemyPortal(
-  x, 
-  y, 
-  spawnMovingLeft = true, 
-  spawnFrame = 20, 
-  spawnChance = 0.20
+  x,
+  y,
+  spawnMovingLeft = true,
+  spawnFrame = 20,
+  spawnChance = 0.2
 ) {
   setupTextEntity(this, x, y, 8, 13, "v", "gray");
   this.spawnMovingLeft = spawnMovingLeft;
@@ -72,15 +72,12 @@ function EnemyPortal(
   this.spawnFrame = spawnFrame;
   this.spawnChance = spawnChance;
 
-  this.maybeSpawnEnemy = function  (data) {
+  this.maybeSpawnEnemy = function (data) {
+    console.log(this.spawnChance);
     var random = Math.random();
     // 2 levels of randomness here to determine spawn probability
-    if (random < spawnChance && data.animationFrame % spawnFrame === 0){
-      const enemy = new Enemy(
-        this.x,
-        this.y,
-        this.spawnMovingLeft
-      );
+    if (random < this.spawnChance && data.animationFrame % spawnFrame === 0) {
+      const enemy = new Enemy(this.x, this.y, this.spawnMovingLeft);
       data.enemies.push(enemy);
     }
   };
@@ -425,7 +422,8 @@ function Enemy(x, y, walkingLeft) {
     data.enemySpikes.forEach((enemySpike) => {
       if (isCollision(enemySpike, this)) {
         data.enemies.splice(index, 1);
-        data.points++;
+        var pointValue = 1 * data.pointsMultiplier;
+        data.points += pointValue;
       }
     });
   };

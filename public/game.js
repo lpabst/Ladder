@@ -1,21 +1,39 @@
 const game = {
   /*********** INITIALIZATION ******************/
 
-  init: function (editorData = null) {
+  init: function (editorData = null, challengeMode = false) {
+    var difficultyInput = document.getElementById("challengeModeDifficulty");
+
     // hide buttons, inputs, and high scores
     document.getElementById("editButton").classList.add("hidden");
     document.getElementById("startButton").classList.add("hidden");
     document.getElementById("highScoresTable").classList.add("hidden");
     document.getElementById("usersNamePrompt").classList.add("hidden");
     document.getElementById("usersName").classList.add("hidden");
+    document.getElementById("startChallengeModeButton").classList.add("hidden");
+    difficultyInput.classList.add("hidden");
+
+    // calculate game difficulty and points multiplier (always set to 1 on infinite mode, max = 50 on challenge mode)
+    var difficulty = 1;
+    if (challengeMode && difficultyInput.value) {
+      difficulty = Number(difficultyInput.value);
+      if (difficulty > 50) difficulty = 50;
+    }
+    var pointsMultiplier = 1 + Math.floor(difficulty / 10);
 
     // let backend know we are starting the game
     var startGameBody = {
       startToken: randomString(32),
+      difficulty,
     };
     console.log("getting game token...");
     makeAjaxCall("POST", "/game/start", startGameBody, function (res) {
-      console.log("Done! starting game");
+      console.log(
+        "Done! starting game with difficulty " +
+          difficulty +
+          ", points multiplier: " +
+          pointsMultiplier
+      );
 
       const name = document.getElementById("usersName").value;
 
@@ -46,6 +64,9 @@ const game = {
         name: name,
         points: 0,
         lives: 2,
+        challengeMode,
+        difficulty,
+        pointsMultiplier,
       };
 
       game.initCanvas(data);
@@ -146,15 +167,18 @@ const game = {
       level.levelCompletePortal.y
     );
     level.enemyPortals.forEach((portal) => {
-      data.enemyPortals.push(
-        new EnemyPortal(
-          portal.x,
-          portal.y,
-          portal.spawnMovingLeft,
-          portal.spawnFrame,
-          portal.spawnChance
-        )
+      var newPortal = new EnemyPortal(
+        portal.x,
+        portal.y,
+        portal.spawnMovingLeft,
+        portal.spawnFrame,
+        portal.spawnChance
       );
+      newPortal.spawnChance += data.difficulty / 100;
+      if (newPortal.spawnChance > 1) {
+        newPortal.spawnChance = 1;
+      }
+      data.enemyPortals.push(newPortal);
     });
     level.walls.forEach((wall) => {
       data.walls.push(new Wall(wall.x, wall.y, wall.w, wall.h));
@@ -235,15 +259,24 @@ const game = {
     // if user is touching a piece of pointsFood, gain some points and destroy the food
     data.pointsFood.forEach((pointsFood, index) => {
       if (isCollision(pointsFood, data.player)) {
-        data.points += 100;
+        var pointValue = 100 * data.pointsMultiplier;
+        data.points += pointValue;
         data.pointsFood.splice(index, 1);
       }
     });
 
     // see if player is touching the level complete portal
     if (isCollision(data.player, data.levelCompletePortal)) {
+      // in challenge mode, level 10 is the last level
+      if (data.challengeMode && data.gameLevel === 10) {
+        game.gameOver(data);
+        return;
+      }
+
+      // otherwise, start the next level
+      var pointsForCompletingLevel = 100 * data.pointsMultiplier;
+      data.points += pointsForCompletingLevel;
       data.gameLevel++;
-      data.points += 100;
       game.initLevel(data);
     }
 
@@ -363,6 +396,12 @@ const game = {
         document.getElementById("usersName").classList.remove("hidden");
         document.getElementById("startButton").classList.remove("hidden");
         document.getElementById("highScoresTable").classList.remove("hidden");
+        document
+          .getElementById("startChallengeModeButton")
+          .classList.remove("hidden");
+        document
+          .getElementById("challengeModeDifficulty")
+          .classList.remove("hidden");
       });
     });
   },
