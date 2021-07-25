@@ -36,7 +36,7 @@ function getHighScores(callback) {
         var cell2 = tr.insertCell(1);
         var cell2Text = document.createTextNode(row.score);
         cell2.appendChild(cell2Text);
-        var cell3 = tr.insertCell(1);
+        var cell3 = tr.insertCell(2);
         var cell3Text = document.createTextNode(row.difficulty);
         cell3.appendChild(cell3Text);
       });

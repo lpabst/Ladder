@@ -5,7 +5,7 @@ const game = {
     var difficultyInput = document.getElementById("challengeModeDifficulty");
 
     // hide buttons, inputs, and high scores
-    document.getElementById('controls').classList.add('hidden');
+    document.getElementById("controls").classList.add("hidden");
 
     // calculate game difficulty and points multiplier (always set to 1 on infinite mode, max = 50 on challenge mode)
     var difficulty = 1;
@@ -23,12 +23,7 @@ const game = {
     };
     console.log("getting game token...");
     makeAjaxCall("POST", "/game/start", startGameBody, function (res) {
-      console.log(
-        "Done! starting game with difficulty " +
-          difficulty +
-          ", points multiplier: " +
-          pointsMultiplier
-      );
+      console.log("Done! starting game...");
 
       const name = document.getElementById("usersName").value;
 
@@ -264,6 +259,11 @@ const game = {
     if (isCollision(data.player, data.levelCompletePortal)) {
       // in challenge mode, level 10 is the last level
       if (data.challengeMode && data.gameLevel === 10) {
+        // earn extra points for each extra life
+        var pointsPerLife = (99 + data.difficulty) * data.pointsMultiplier;
+        data.points += pointsPerLife * data.lives;
+        data.lives = 0;
+        game.render(data);
         game.gameOver(data);
         return;
       }
@@ -339,7 +339,9 @@ const game = {
       timerColor,
       18
     );
-    var gameModeText = data.challengeMode ? "Challenge Mode (" + data.difficulty + ')'  : "Infinite Mode"
+    var gameModeText = data.challengeMode
+      ? "Challenge Mode (" + data.difficulty + ")"
+      : "Infinite Mode";
     data.canvas.drawText(160, 770, gameModeText, "white", 18);
     data.canvas.drawText(390, 770, "Level: " + data.gameLevel, "white", 18);
     data.canvas.drawText(510, 770, "Lives: " + data.lives, "white", 18);

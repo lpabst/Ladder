@@ -102,6 +102,7 @@ async function startNodeService() {
       // if game token isn't present, end here
       const gameToken = req.signedCookies.gameToken;
       if (!gameToken) {
+        console.log("caught someone with no game token");
         if (cheatersRowCount < 500) {
           await db.cheaters.insert(potentialNewHighScoreData);
         }
@@ -119,6 +120,7 @@ async function startNodeService() {
       // if less than 20 seconds has elapsed, end here. You can't really die and end the game faster than that
       // This also slows down hacking attempts, and games that short won't get high scores anyways
       if (timeElapsed < 20000) {
+        console.log("caught someone with time less than 20 seconds");
         if (cheatersRowCount < 500) {
           await db.cheaters.insert(potentialNewHighScoreData);
         }
@@ -128,9 +130,9 @@ async function startNodeService() {
       // It is quite literally impossible to score more than 17 points per second with the current setup in infinite mode. I played with dying turned off and constant points per second tracking, and played near perfectly, and was only able to get up to 16.9999 at any given point
       let pointsPerSecondThreshold = 17;
       if (gameToken.challengeMode) {
-        // I haven't tested challenge mode yet, but 20 should be a safe buffer for now
+        // I haven't tested challenge mode yet, but 22 should be a safe buffer for now
         const pointsMultiplier = 1 + Math.floor(gameToken / 10);
-        pointsPerSecondThreshold = 20 * pointsMultiplier;
+        pointsPerSecondThreshold = 22 * pointsMultiplier;
       }
 
       const pointsPerSecond = (req.body.score / timeElapsed) * 1000;
@@ -138,6 +140,7 @@ async function startNodeService() {
 
       // it takes time to score points, so if the score is too high for how much time has elapsed, end here
       if (pointsPerSecond > pointsPerSecondThreshold) {
+        console.log("caught someone with too many points per second");
         if (cheatersRowCount < 500) {
           await db.cheaters.insert(potentialNewHighScoreData);
         }
@@ -195,11 +198,20 @@ async function startNodeService() {
       const highScores = await db.query(
         "SELECT * from scores ORDER BY score DESC LIMIT 10"
       );
+      const challengeHighScores = await db.query(
+        "SELECT * from challenge_scores ORDER BY score DESC LIMIT 10"
+      );
       return res.status(200).send({
         highScores: highScores.map((row) => ({
           name: row.name,
           score: row.score,
-          timeElapsed: req.time_elapsed,
+          timeElapsed: row.time_elapsed,
+        })),
+        challengeHighScores: challengeHighScores.map((row) => ({
+          name: row.name,
+          score: row.score,
+          timeElapsed: row.time_elapsed,
+          difficulty: row.difficulty,
         })),
       });
     } catch (e) {

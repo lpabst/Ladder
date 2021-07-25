@@ -73,7 +73,6 @@ function EnemyPortal(
   this.spawnChance = spawnChance;
 
   this.maybeSpawnEnemy = function (data) {
-    console.log(this.spawnChance);
     var random = Math.random();
     // 2 levels of randomness here to determine spawn probability
     if (random < this.spawnChance && data.animationFrame % spawnFrame === 0) {
