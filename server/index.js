@@ -48,17 +48,20 @@ async function startNodeService() {
 
   app.post("/game/start", (req, res) => {
     try {
-      // this doesn't really matter but will slow down hacking attempts
       if (!req.body || !req.body.startToken) {
         return res
           .status(400)
           .send({ error: true, message: "Invalid start token" });
       }
+      const difficulty = req.body.difficulty;
+      const challengeMode = req.body.challengeMode;
 
       // generate game token cookie
       const gameToken = {
         token: randomString(64),
         startTime: new Date().getTime(),
+        difficulty,
+        challengeMode,
       };
       res.cookie("gameToken", gameToken, {
         httpOnly: true,
@@ -122,8 +125,14 @@ async function startNodeService() {
         return res.status(204).end();
       }
 
-      // It is quite literally impossible to score more than 17 points per second with the current setup. I played with dying turned off and constant points per second tracking, and played near perfectly, and was only able to get up to 16.9999 at any given point
-      const pointsPerSecondThreshold = 17;
+      // It is quite literally impossible to score more than 17 points per second with the current setup in infinite mode. I played with dying turned off and constant points per second tracking, and played near perfectly, and was only able to get up to 16.9999 at any given point
+      let pointsPerSecondThreshold = 17;
+      if (gameToken.challengeMode) {
+        // I haven't tested challenge mode yet, but 20 should be a safe buffer for now
+        const pointsMultiplier = 1 + Math.floor(gameToken / 10);
+        pointsPerSecondThreshold = 20 * pointsMultiplier;
+      }
+
       const pointsPerSecond = (req.body.score / timeElapsed) * 1000;
       potentialNewHighScoreData.points_per_second = pointsPerSecond;
 
@@ -136,21 +145,43 @@ async function startNodeService() {
       }
 
       /***************** END CHEATING CHECKS *****************/
-      // check current high scores
-      const highScores = await db.query(
-        "SELECT * from scores ORDER BY score DESC LIMIT 20"
-      );
+      if (gameToken.challengeMode) {
+        // include difficulty in potential db record
+        potentialNewHighScoreData.difficulty = gameToken.difficulty;
 
-      // if we have less than 20 high scores, add this one
-      if (highScores.length < 20) {
-        await db.scores.insert(potentialNewHighScoreData);
-      }
+        // check current high scores
+        const highScores = await db.query(
+          "SELECT * from challenge_scores ORDER BY score DESC LIMIT 20"
+        );
 
-      // if this is higher than the lowest of our top 20 scores, delete the lowest and add this one
-      const lowestHighScore = highScores[highScores.length - 1];
-      if (req.body.score > lowestHighScore.score) {
-        await db.scores.destroy({ id: lowestHighScore.id });
-        await db.scores.insert(potentialNewHighScoreData);
+        // if we have less than 20 high scores, add this one
+        if (highScores.length < 20) {
+          await db.challenge_scores.insert(potentialNewHighScoreData);
+        }
+
+        // if this is higher than the lowest of our top 20 scores, delete the lowest and add this one
+        const lowestHighScore = highScores[highScores.length - 1];
+        if (req.body.score > lowestHighScore.score) {
+          await db.challenge_scores.destroy({ id: lowestHighScore.id });
+          await db.challenge_scores.insert(potentialNewHighScoreData);
+        }
+      } else {
+        // check current high scores
+        const highScores = await db.query(
+          "SELECT * from scores ORDER BY score DESC LIMIT 20"
+        );
+
+        // if we have less than 20 high scores, add this one
+        if (highScores.length < 20) {
+          await db.scores.insert(potentialNewHighScoreData);
+        }
+
+        // if this is higher than the lowest of our top 20 scores, delete the lowest and add this one
+        const lowestHighScore = highScores[highScores.length - 1];
+        if (req.body.score > lowestHighScore.score) {
+          await db.scores.destroy({ id: lowestHighScore.id });
+          await db.scores.insert(potentialNewHighScoreData);
+        }
       }
 
       res.status(204).end();

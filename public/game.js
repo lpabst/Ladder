@@ -25,6 +25,7 @@ const game = {
     var startGameBody = {
       startToken: randomString(32),
       difficulty,
+      challengeMode,
     };
     console.log("getting game token...");
     makeAjaxCall("POST", "/game/start", startGameBody, function (res) {
@@ -259,7 +260,7 @@ const game = {
     // if user is touching a piece of pointsFood, gain some points and destroy the food
     data.pointsFood.forEach((pointsFood, index) => {
       if (isCollision(pointsFood, data.player)) {
-        var pointValue = 100 * data.pointsMultiplier;
+        var pointValue = (99 + difficulty) * data.pointsMultiplier;
         data.points += pointValue;
         data.pointsFood.splice(index, 1);
       }
@@ -274,7 +275,7 @@ const game = {
       }
 
       // otherwise, start the next level
-      var pointsForCompletingLevel = 100 * data.pointsMultiplier;
+      var pointsForCompletingLevel = (99 + difficulty) * data.pointsMultiplier;
       data.points += pointsForCompletingLevel;
       data.gameLevel++;
       game.initLevel(data);

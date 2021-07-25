@@ -1,3 +1,18 @@
+th,
+td {
+  border: 1px solid black;
+  padding: 3px 5px;
+}
+
+p {
+    margin: 0px;
+    display: inline-block;
+}
+
+hr {
+    margin: 20px 0px;
+}
+
 .content {
     width: 800px;
     margin: 0 auto;
@@ -6,8 +21,17 @@
 .header {
     font-size: 32px;
     text-align: center;
+    display: block;
 }
 
 .hidden {
     display: none;
+}
+
+#usersNamePrompt {
+    margin-right: 10px;
+}
+
+#startButton {
+    margin-right: 10px;
 }
