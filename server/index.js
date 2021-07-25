@@ -159,14 +159,18 @@ async function startNodeService() {
 
         // if we have less than 20 high scores, add this one
         if (highScores.length < 20) {
+          console.log("Add new challenge mode high score (under 20 exist)");
           await db.challenge_scores.insert(potentialNewHighScoreData);
+          return res.status(204).end();
         }
 
         // if this is higher than the lowest of our top 20 scores, delete the lowest and add this one
         const lowestHighScore = highScores[highScores.length - 1];
         if (req.body.score > lowestHighScore.score) {
+          console.log("Add new challenge mode high score (replace existing)");
           await db.challenge_scores.destroy({ id: lowestHighScore.id });
           await db.challenge_scores.insert(potentialNewHighScoreData);
+          return res.status(204).end();
         }
       } else {
         // check current high scores
@@ -176,18 +180,20 @@ async function startNodeService() {
 
         // if we have less than 20 high scores, add this one
         if (highScores.length < 20) {
+          console.log("Add new infinite mode high score (under 20)");
           await db.scores.insert(potentialNewHighScoreData);
+          return res.status(204).end();
         }
 
         // if this is higher than the lowest of our top 20 scores, delete the lowest and add this one
         const lowestHighScore = highScores[highScores.length - 1];
         if (req.body.score > lowestHighScore.score) {
+          console.log("Add new infinite mode high score (replace existing)");
           await db.scores.destroy({ id: lowestHighScore.id });
           await db.scores.insert(potentialNewHighScoreData);
+          return res.status(204).end();
         }
       }
-
-      res.status(204).end();
     } catch (e) {
       res.status(500).end();
     }
