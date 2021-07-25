@@ -8,8 +8,10 @@
   </head>
 
   <body>
-    <div class="content">
+    <div class='content'>
       <p class="header">Ladder</p>
+    </div>
+    <div id="controls">
       <button id="editButton" onclick="editor.init()" class="hidden">
         Editor
       </button>
@@ -20,52 +22,54 @@
         <button id="startButton" onclick="game.init()">
             Start Infinite Mode Game
         </button>
-        <p>(difficulty: 1)</p>
+        <p id="infiniteModeDifficultyText">(difficulty: 1)</p>
+      </div>
+      <hr>
+      <div>
+          <input
+              id="challengeModeDifficulty"
+              type="number"
+              placeholder="difficulty"
+          />
+          <button id="startChallengeModeButton" onclick="game.init(null, true)">
+              Start Challenge Mode Game
+          </button>
+      </div>
+      <div id="editorElements" style="display: none">
+          <button id="logEditorEntities">Log Editor Entities</button>
+          <span>Level: </span>
+          <input id="level" type="number" style="z-index: 1000" />
+          <button id="saveButton">Save Level</button>
+          <button id="loadButtonStorage">Load Level From Storage</button>
+          <button id="loadButtonData">Load Level From Data</button>
+          <button id="restoreButton">Restore Last Save</button>
+          <button id="playLevelButton">Play This Data</button>
+      </div>
+      <hr>
+      <table id="highScoresTable" style="float: left; border-right: 1px solid black; padding-right: 10px;">
+          <caption>
+              Infinite Mode High Scores
+          </caption>
+          <tr>
+              <th>Name</th>
+              <th>Score</th>
+          </tr>
+          <tbody id="highScoresTableBody"></tbody>
+      </table>
+      <table id="challengeHighScoresTable" style="padding-left: 20px;">
+          <caption>
+              Challenge Mode High Scores
+          </caption>
+          <tr>
+              <th>Name</th>
+              <th>Score</th>
+              <th>Difficulty</th>
+          </tr>
+          <tbody id="challengeHighScoresTableBody"></tbody>
+      </table>
     </div>
-    <hr>
-    <div>
-        <input
-            id="challengeModeDifficulty"
-            type="number"
-            placeholder="difficulty"
-        />
-        <button id="startChallengeModeButton" onclick="game.init(null, true)">
-            Start Challenge Mode Game
-        </button>
-    </div>
-    <div id="editorElements" style="display: none">
-        <button id="logEditorEntities">Log Editor Entities</button>
-        <span>Level: </span>
-        <input id="level" type="number" style="z-index: 1000" />
-        <button id="saveButton">Save Level</button>
-        <button id="loadButtonStorage">Load Level From Storage</button>
-        <button id="loadButtonData">Load Level From Data</button>
-        <button id="restoreButton">Restore Last Save</button>
-        <button id="playLevelButton">Play This Data</button>
-    </div>
-    <hr>
-    <table id="highScoresTable" style="float: left; border-right: 1px solid black; padding-right: 10px;">
-        <caption>
-            Infinite Mode High Scores
-        </caption>
-        <tr>
-            <th>Name</th>
-            <th>Score</th>
-        </tr>
-        <tbody id="highScoresTableBody"></tbody>
-    </table>
-    <table id="challengeHighScoresTable" style="padding-left: 20px;">
-        <caption>
-            Challenge Mode High Scores
-        </caption>
-        <tr>
-            <th>Name</th>
-            <th>Score</th>
-            <th>Difficulty</th>
-        </tr>
-        <tbody id="challengeHighScoresTableBody"></tbody>
-    </table>
-    <canvas id="canvas" class="canvas" width="800" height="800"></canvas>
+    <div class="content">
+      <canvas id="canvas" class="canvas" width="800" height="800"></canvas>
     </div>
   </body>
 

@@ -5,13 +5,7 @@ const game = {
     var difficultyInput = document.getElementById("challengeModeDifficulty");
 
     // hide buttons, inputs, and high scores
-    document.getElementById("editButton").classList.add("hidden");
-    document.getElementById("startButton").classList.add("hidden");
-    document.getElementById("highScoresTable").classList.add("hidden");
-    document.getElementById("usersNamePrompt").classList.add("hidden");
-    document.getElementById("usersName").classList.add("hidden");
-    document.getElementById("startChallengeModeButton").classList.add("hidden");
-    difficultyInput.classList.add("hidden");
+    document.getElementById('controls').classList.add('hidden');
 
     // calculate game difficulty and points multiplier (always set to 1 on infinite mode, max = 50 on challenge mode)
     var difficulty = 1;
@@ -260,7 +254,7 @@ const game = {
     // if user is touching a piece of pointsFood, gain some points and destroy the food
     data.pointsFood.forEach((pointsFood, index) => {
       if (isCollision(pointsFood, data.player)) {
-        var pointValue = (99 + difficulty) * data.pointsMultiplier;
+        var pointValue = (99 + data.difficulty) * data.pointsMultiplier;
         data.points += pointValue;
         data.pointsFood.splice(index, 1);
       }
@@ -275,7 +269,8 @@ const game = {
       }
 
       // otherwise, start the next level
-      var pointsForCompletingLevel = (99 + difficulty) * data.pointsMultiplier;
+      var pointsForCompletingLevel =
+        (99 + data.difficulty) * data.pointsMultiplier;
       data.points += pointsForCompletingLevel;
       data.gameLevel++;
       game.initLevel(data);
@@ -344,9 +339,11 @@ const game = {
       timerColor,
       18
     );
-    data.canvas.drawText(240, 770, "Level: " + data.gameLevel, "white", 18);
-    data.canvas.drawText(460, 770, "Lives: " + data.lives, "white", 18);
-    data.canvas.drawText(640, 770, "Points: " + data.points, "white", 18);
+    var gameModeText = data.challengeMode ? "Challenge Mode (" + data.difficulty + ')'  : "Infinite Mode"
+    data.canvas.drawText(160, 770, gameModeText, "white", 18);
+    data.canvas.drawText(390, 770, "Level: " + data.gameLevel, "white", 18);
+    data.canvas.drawText(510, 770, "Lives: " + data.lives, "white", 18);
+    data.canvas.drawText(630, 770, "Points: " + data.points, "white", 18);
     data.player.render(data);
     data.enemyPortals.forEach((portal) => portal.render(data));
     data.levelCompletePortal.render(data);
@@ -393,16 +390,7 @@ const game = {
       getHighScores(function () {
         console.log("Done!");
         data.canvas.drawText(270, 350, "GAME OVER", "white", 40);
-        document.getElementById("usersNamePrompt").classList.remove("hidden");
-        document.getElementById("usersName").classList.remove("hidden");
-        document.getElementById("startButton").classList.remove("hidden");
-        document.getElementById("highScoresTable").classList.remove("hidden");
-        document
-          .getElementById("startChallengeModeButton")
-          .classList.remove("hidden");
-        document
-          .getElementById("challengeModeDifficulty")
-          .classList.remove("hidden");
+        document.getElementById("controls").classList.remove("hidden");
       });
     });
   },

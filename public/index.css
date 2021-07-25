@@ -13,9 +13,18 @@ hr {
     margin: 20px 0px;
 }
 
+#controls {
+    width: 800px;
+    margin: 0 auto;
+}
+
 .content {
     width: 800px;
     margin: 0 auto;
+}
+
+.canvas {
+    margin-top: 20px;
 }
 
 .header {
