@@ -48,7 +48,6 @@ async function startNodeService() {
 
   app.post("/game/start", (req, res) => {
     try {
-      console.log(req.headers["x-forwarded-for"]);
       if (!req.body || !req.body.startToken) {
         return res
           .status(400)
